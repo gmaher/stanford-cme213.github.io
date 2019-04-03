@@ -5,6 +5,11 @@
 #include <vector>
 #include <numeric>
 #include <algorithm>
+#include <exception>
+
+struct out_of_range_exception : std::exception {
+  const char* what() const noexcept {return "Requested element out of range\n";}
+};
 
 template<typename T>
 class Matrix
@@ -32,6 +37,9 @@ class MatrixSymmetric : public Matrix<T>
     }
 
     T& operator()(const unsigned& i, const unsigned& j){
+      if (i >= n || j >= n){
+        throw out_of_range_exception();
+      }
       if (i  <= j){
         return data[i*n - ((i-1)*i)/2 + j-i];
       }

@@ -1,22 +1,41 @@
 #include "matrix.hpp"
+#include <assert.h>
 
 int main(){
 
-  MatrixSymmetric<unsigned> A(4);
+  unsigned N=5;
 
-  A(0,0) = 0;
-  A(0,1) = 1;
-  A(0,2) = 3;
-  A(0,3) = 4;
-  A(1,1) = 5;
-  A(1,2) = 6;
-  A(1,3) = 7;
-  A(2,2) = 8;
-  A(2,3) = 9;
-  A(3,3) = 10;
+  MatrixSymmetric<unsigned> A(N);
+
+  for (unsigned j = 0; j < N; j++){
+    for (unsigned i = 0; i < N; i++){
+      if (i > j){break;}
+
+      A(i,j) = i+j;
+    }
+  }
+
 
   std::cout << A;
 
   std::cout << "non zeros: " << A.l0_norm() << "\n";
+
+  std::cout << "testing entry\n";
+  for (unsigned j = 0; j < N; j++){
+    for (unsigned i = 0; i < N; i++){
+      assert(A(i,j) == i+j);
+    }
+  }
+  
+  std::cout << "testing symmetry\n";
+  for (unsigned j = 0; j < N; j++){
+    for (unsigned i = 0; i < N; i++){
+      assert(A(i,j) == A(j,i));
+    }
+  }
+
+  std::cout << "testing l0 norm\n";
+  assert(A.l0_norm() == N*N-1);
+
   return 0;
 }
