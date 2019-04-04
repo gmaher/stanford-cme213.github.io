@@ -1,0 +1,29 @@
+\section{Question 1}
+
+\subsection{a}
+See code.
+
+\subsection{b}
+
+For different matrix sizes we want to test the following properties:
+\begin{itemize}
+	\item Setting/Getting: $A(i,j)=a \Rightarrow A(i,j) \text{ returns } a$
+	\item Symmetry: $A(i,j) == A(j,i) \text{ is true } \forall (i,j)$.
+	\item $l_0$ norm: returns correct number of nonzeros in whole matrix $A$.
+\end{itemize}
+
+Given matrix $A$, with dimensions $N \times N$, we implement the following test.
+
+$\forall (i,j)$ with $j\geq i$ (upper triangular part, $i,j$ zero-indexed), assign $A(i,j) = i+j$.
+
+Verify following statements
+\begin{itemize}
+	\item $i,j=0,...,n-1 \Rightarrow A(i,j)=i+j$
+	\item $i,j=0,...,n-1 \Rightarrow A(i,j)==A(j,i)$ is true.
+	\item $A.l_0\_norm()$ returns $n^2-1$.
+\end{itemize}
+
+\subsection{c}
+The submitted code passes all tests.
+
+For example, setting $N=5$ the first two conditions pass and $A.l_0\_norm()$ returns $24$.

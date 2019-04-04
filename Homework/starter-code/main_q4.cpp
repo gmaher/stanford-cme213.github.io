@@ -100,11 +100,15 @@ int main() {
 	int y = 3;
 
 	auto vd = daxpy(v,a,y);
-	daxpy(vd,a,y);
 	for (int i = 0; i < v.size(); i++){
 		std::cout << vd[i] << "\n";
 	}
 
+	vd[0] = 1; vd[1] = 2; vd[2] = 3;
+	daxpy(vd,a,y);
+	for (int i = 0; i < v.size(); i++){
+		std::cout << vd[i] << "\n";
+	}
 
 	//Qb
 	int thresh = 60;
