@@ -83,7 +83,12 @@ struct SparseMatrixCoordinate {
 
 template <typename T>
 void sparse_matrix_sort(std::list<SparseMatrixCoordinate<T>>& list) {
-	// TODO
+	list.sort([](const SparseMatrixCoordinate<T>& x, const SparseMatrixCoordinate<T>& y){
+		if (x.row < y.row) return true;
+		if (x.row > y.row) return false;
+		if (x.col > y.col) return false;
+		return true;
+	});
 }
 
 
@@ -118,6 +123,20 @@ int main() {
 	for (int i = 0; i <  numbers.size(); i++){
 		std::cout << numbers[i] << "\n";
 	}
-	// TODO: Write your tests here!
+
+	//Qd
+	typedef SparseMatrixCoordinate<int> SMC;
+	auto linked_list = std::list<SMC>();
+	linked_list.push_back(SMC(1,1,1));
+	linked_list.push_back(SMC(0,2,1));
+	linked_list.push_back(SMC(0,1,1));
+	linked_list.push_back(SMC(0,0,1));
+
+	sparse_matrix_sort(linked_list);
+
+
+	for (SMC n : linked_list) {
+			std::cout << n.row << ", " << n.col << '\n';
+	}
 	return 0;
 }
