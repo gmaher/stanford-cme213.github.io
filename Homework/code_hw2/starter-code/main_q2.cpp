@@ -29,6 +29,7 @@ std::vector<uint> computeBlockHistograms(const std::vector<uint>& keys,
         uint numBits, uint startBit, uint blockSize) {
     std::vector<uint> blockHistograms(numBlocks * numBuckets, 0);
 
+    #pragma omp parallel for
     for (int i = 0; i < keys.size(); i++){
       int block = i/blockSize;
 
@@ -53,7 +54,11 @@ std::vector<uint> computeBlockHistograms(const std::vector<uint>& keys,
 std::vector<uint> reduceLocalHistoToGlobal(const std::vector<uint>&
         blockHistograms, uint numBlocks, uint numBuckets) {
     std::vector<uint> globalHisto(numBuckets, 0);
-    // TODO
+
+    for (int i = 0; i < blockHistograms.size(); i++){
+      globalHisto[(i+numBuckets)%numBuckets] += blockHistograms[i];
+    }
+
     return globalHisto;
 }
 
