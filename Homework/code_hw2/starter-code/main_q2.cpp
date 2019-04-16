@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <omp.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "tests_q2.h"
 
@@ -27,7 +28,20 @@ std::vector<uint> computeBlockHistograms(const std::vector<uint>& keys,
         uint numBlocks, uint numBuckets,
         uint numBits, uint startBit, uint blockSize) {
     std::vector<uint> blockHistograms(numBlocks * numBuckets, 0);
-    // TODO
+
+    for (int i = 0; i < keys.size(); i++){
+      int block = i/blockSize;
+
+      int bucket = 0;
+      for (int j = 0; j < numBits; j++){
+          if( (keys[i] >> (startBit+j)) & 1){
+            bucket += pow(2,j);
+          }
+      }
+
+      blockHistograms[block*numBuckets + bucket]+=1;
+    }
+
     return blockHistograms;
 }
 
