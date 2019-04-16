@@ -69,7 +69,13 @@ std::vector<uint> reduceLocalHistoToGlobal(const std::vector<uint>&
 std::vector<uint> scanGlobalHisto(const std::vector<uint>& globalHisto,
                                   uint numBuckets) {
     std::vector<uint> globalHistoExScan(numBuckets, 0);
-    // TODO
+
+    int sum = 0;
+    for (int i = 0; i < numBuckets; i++){
+      globalHistoExScan[i] = sum;
+      sum += globalHisto[i];
+    }
+
     return globalHistoExScan;
 }
 
