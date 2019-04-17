@@ -1,0 +1,26 @@
+\section{Question 6}
+\begin{table}[!ht]
+	\centering
+	\caption{Comparison of parallel radix sort runtime (seconds) as number of blocks and threads are varied.}
+	\begin{tabular}{l|llllllllll}
+		    & \multicolumn{10}{c}{Threads} \\
+		    \hline
+		   Blocks&      1  &     2  &    4   &    8   &   12   &    16   &   24   &   32  &   40    &    48 \\
+		   \hline
+		   1  &  6.553  & 6.526  & 6.485  & 6.405  &  6.328  & 6.332  & 6.564  & 6.591 &  6.623  &  6.572 \\
+		   2  &  6.497  & 3.669  & 3.402  & 3.362  &  3.779  & 3.479  & 3.561  & 3.526 &  3.372  &  3.448\\
+		   4  &  6.469  & 3.436  & 1.923  & 1.583  &  2.256  & 1.840  & 1.910  & 1.817 &  1.601  &  1.904\\
+		   8  &  6.574  & 3.541  & 1.941  & 1.198  &  1.533  & 1.188  & 1.169  & 1.116 &  1.095  &  1.223\\
+		   12 &   6.613 &  3.448 &  1.703 &  1.226 &   1.185 &  1.044 &  1.110 &  0.896&   0.936 &   0.967\\
+		   16 &   6.629 &  3.470 &  2.044 &  1.096 &   0.910 &  0.936 &  0.930 &  0.872&   1.003 &   0.958\\
+		   24 &   6.669 &  3.374 &  2.062 &  1.149 &   0.885 &  0.925 &  1.000 &  0.912&   0.919 &   0.896\\
+		   32 &   6.698 &  3.328 &  2.191 &  1.180 &  0.911  & 0.923  & 0.883  & 0.855 &  0.954  &  0.843\\
+		   40 &   6.509 &  3.568 &  2.192 &  1.279 &   0.779 &  0.925 &  0.866 &  0.865&   0.772 &   0.856\\
+		   48 &   6.525 &  3.502 &  2.133 &  1.164 &   0.995 &  1.003 &  0.884 &  0.838&   0.832 &   0.887\\ 
+	\end{tabular}
+	\label{tab:threadblock}
+\end{table}
+
+The optimal thread/block combination is 40 threads and 40 blocks respectively, with a runtime of 0.772 seconds. However it should be noted this was close to the time for 12 threads/40 blocks.
+
+To obtain faster runtimes using multithreading requires using a large enough number of blocks. If insufficient blocks are specified, using more threads will not reduce runtime, showing that proper parallelization of the radix algorithm is required in addition to using more threads.
