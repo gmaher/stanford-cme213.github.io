@@ -112,7 +112,28 @@ void populateOutputFromBlockExScan(const std::vector<uint>& blockExScan,
                                    uint numBlocks, uint numBuckets, uint startBit,
                                    uint numBits, uint blockSize, const std::vector<uint>& keys,
                                    std::vector<uint>& sorted) {
-    // TODO
+
+   for (int i = 0; i < numBlocks; i++){
+
+       std::vector<uint> offsets(numBuckets,0);
+       int block_offset = i*numBuckets;
+
+       for (int b =0; b < numBuckets; b++){
+           int index = block_offset+b;
+
+           int bucket = 0;
+           for (int j = 0; j < numBits; j++){
+               if( (keys[index] >> (startBit+j)) & 1){
+                 bucket += pow(2,j);
+               }
+           }
+           int key_index = offsets[bucket]+blockExScan[block_offset+bucket];
+           sorted[key_index] = keys[index];
+           offsets[bucket] += 1;
+       }
+   }
+
+
 }
 
 /* Function: radixSortParallelPass
