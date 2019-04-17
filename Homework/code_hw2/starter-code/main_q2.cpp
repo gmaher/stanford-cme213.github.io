@@ -30,17 +30,18 @@ std::vector<uint> computeBlockHistograms(const std::vector<uint>& keys,
     std::vector<uint> blockHistograms(numBlocks * numBuckets, 0);
 
     #pragma omp parallel for
-    for (int i = 0; i < keys.size(); i++){
-      int block = i/blockSize;
-
-      int bucket = 0;
-      for (int j = 0; j < numBits; j++){
-          if( (keys[i] >> (startBit+j)) & 1){
+    for (int i = 0; i < numBlocks; i++){
+      for(int b=0; b<blockSize; b++){
+        int index=i*blockSize+b;
+        int bucket = 0;
+        for (int j = 0; j < numBits; j++){
+          if( (keys[index] >> (startBit+j)) & 1){
             bucket += pow(2,j);
           }
-      }
+        }
 
-      blockHistograms[block*numBuckets + bucket]+=1;
+        blockHistograms[i*numBuckets + bucket]+=1;
+      }
     }
 
     return blockHistograms;
@@ -168,11 +169,12 @@ void radixSortParallelPass(std::vector<uint>& keys, std::vector<uint>& sorted,
 }
 
 int radixSortParallel(std::vector<uint>& keys, std::vector<uint>& keys_tmp,
-                      uint numBits, uint numBlocks) {
+                      uint numBits) {
+
     for(uint startBit = 0; startBit < kNumBitsUint; startBit += 2 * numBits) {
-        radixSortParallelPass(keys, keys_tmp, numBits, startBit, numBlocks);
+        radixSortParallelPass(keys, keys_tmp, numBits, startBit, keys.size()/8);
         radixSortParallelPass(keys_tmp, keys, numBits, startBit + numBits,
-                              numBlocks);
+                              keys.size()/8);
     }
 
     return 0;
@@ -245,15 +247,11 @@ int main() {
     initializeRandomly(keys_stl);
     std::vector<uint> keys_serial = keys_stl;
     std::vector<uint> keys_parallel = keys_stl;
-    std::vector<uint> keys_orig = keys_stl;
+
     std::vector<uint> temp_keys(kSizeTestVector);
 
 #ifdef QUESTION6
-    std::vector<uint> keys_parallels[7];
-
-    for(int i = 0; i < 7; i++) {
-        keys_parallels[i] = keys_stl;
-    }
+    std::vector<uint> keys_orig = keys_stl;
 
 #endif
 
@@ -276,7 +274,7 @@ int main() {
 
     // parallel radix sort
     double startRadixParallel = omp_get_wtime();
-    radixSortParallel(keys_parallel, temp_keys, kSizeMask, keys_parallel.size()/8);
+    radixSortParallel(keys_parallel, temp_keys, kSizeMask);
     double endRadixParallel = omp_get_wtime();
 
     success = true;
@@ -317,7 +315,7 @@ int main() {
         keys_parallel = keys_orig;
         double startRadixParallel = omp_get_wtime();
 
-        radixSortParallel(keys_parallel, temp_keys, kSizeMask, n_threads);
+        radixSortParallel(keys_parallel, temp_keys, kSizeMask);
 
         double endRadixParallel = omp_get_wtime();
         EXPECT_VECTOR_EQ(keys_stl, keys_parallel, &success);
