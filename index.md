@@ -27,11 +27,19 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 
 ### Homework
 
-* [Google Cloud Platform Setup](./gcp.html)
 * [Homework 1](Homework/hw1.pdf) and [starter code](Homework/code_hw1.zip)
+* [Homework 2](Homework/hw2.pdf), [Radix Sort Tutorial](Homework/RadixSortTutorial.pdf), and [starter code](Homework/code_hw2.zip)
+
+### Google Cloud Platform 
+* [Google Cloud Platform setup instructions](./gcp.html)
+* [VM instances information page](https://console.cloud.google.com/compute)
+* [Billing page](https://console.cloud.google.com/billing)
+* [GCP dashboard](https://console.cloud.google.com/home)
+* [OpenMP VM script](Code/create_vm_openmp.sh)
 
 ### Reading and links
 
+* [OpenMP API Syntax Reference Guide](https://www.openmp.org/wp-content/uploads/OpenMPRef-5.0-111802-web.pdf)
 * [C++ reference](https://en.cppreference.com/w/cpp)
 * [LLNL tutorial on Pthreads](https://computing.llnl.gov/tutorials/pthreads/)
 * [C++ threads](http://www.cplusplus.com/reference/thread/thread/)
@@ -45,16 +53,20 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 * [Introduction and syllabus](Lecture Notes/Lecture_01.pdf)
 * [Parallel computing, threads](Lecture Notes/Lecture_02.pdf)
 * [Race condition, mutex](Lecture Notes/Lecture_03.pdf)
-
-### Tutorial notes
-
-* [C++ Refresher Session](Tutorial Notes/Tutorial_01.pdf) and [code](Tutorial Notes/code.zip)
+* [OpenMP, for loops](Lecture Notes/Lecture_04.pdf)
+* [OpenMP, reduction](Lecture Notes/Lecture_05.pdf)
 
 ### Computer code
 
 * [C++ standard library and lambda functions](Code/ex1_transform.cpp), and [solution](Code/ex1_transform_solution.cpp) 
 * [Threads](Code/pthread.zip)
 * [Mutex](Code/mutex.zip)
+* [OpenMP intro](Code/omp1.zip)
+* [OpenMP reduction](Code/omp2.zip)
+
+### Tutorial notes
+
+* [C++ Refresher Session](Tutorial Notes/Tutorial_01.pdf) and [code](Tutorial Notes/code.zip)
 
 ### Course Schedule
 
