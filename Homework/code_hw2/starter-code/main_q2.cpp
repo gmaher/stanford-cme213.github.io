@@ -113,12 +113,12 @@ void populateOutputFromBlockExScan(const std::vector<uint>& blockExScan,
                                    uint numBits, uint blockSize, const std::vector<uint>& keys,
                                    std::vector<uint>& sorted) {
 
+   #pragma omp parallel for
    for (int i = 0; i < numBlocks; i++){
 
        std::vector<uint> offsets(numBuckets,0);
-       int block_offset = i*numBuckets;
-
-       for (int b =0; b < numBuckets; b++){
+       int block_offset = i*blockSize;
+       for (int b=0; b < blockSize; b++){
            int index = block_offset+b;
 
            int bucket = 0;
@@ -127,7 +127,7 @@ void populateOutputFromBlockExScan(const std::vector<uint>& blockExScan,
                  bucket += pow(2,j);
                }
            }
-           int key_index = offsets[bucket]+blockExScan[block_offset+bucket];
+           int key_index = offsets[bucket]+blockExScan[i*numBuckets+bucket];
            sorted[key_index] = keys[index];
            offsets[bucket] += 1;
        }

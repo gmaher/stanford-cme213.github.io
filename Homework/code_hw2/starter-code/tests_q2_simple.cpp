@@ -5,7 +5,7 @@
 
 #include "tests_q2.h"
 
-const unsigned int kSizeMaskTest = 8;
+const unsigned int kSizeMaskTest = 1;
 const unsigned int kStartBitTest = 0;
 
 std::vector<uint> computeBlockHistograms(const std::vector<uint>& keys,
@@ -78,13 +78,17 @@ std::vector<uint> ReadVectorFromFile(const std::string& filename) {
 }
 
 void Test1() {
-    std::vector<uint> input = ReadVectorFromFile("test_files/input");
+    std::vector<uint> input = ReadVectorFromFile("test_files_simple/input");
     std::vector<uint> expected_output =
-        ReadVectorFromFile("test_files/blockhistograms");
+        ReadVectorFromFile("test_files_simple/blockhistograms");
 
-    uint blockSize = input.size() / 8;
-    uint numBlocks = (input.size() + blockSize - 1) / blockSize;
-    uint numBuckets = 1 << kSizeMaskTest;
+        for(int i = 0; i < input.size(); i++){std::cout<<input[i] << ",";}
+        std::cout<<"\n";
+        for(int i = 0; i < input.size(); i++){std::cout<<expected_output[i] << ",";}
+
+    uint blockSize = 2;
+    uint numBlocks = 4;
+    uint numBuckets = 2;
     std::vector<uint> blockHistograms = computeBlockHistograms(input, numBlocks,
                                         numBuckets, kSizeMaskTest, kStartBitTest, blockSize);
     bool success = true;
@@ -94,14 +98,14 @@ void Test1() {
 
 void Test2() {
     std::vector<uint> blockHistograms =
-        ReadVectorFromFile("test_files/blockhistograms");
-    std::vector<uint> input = ReadVectorFromFile("test_files/input");
+        ReadVectorFromFile("test_files_simple/blockhistograms");
+    std::vector<uint> input = ReadVectorFromFile("test_files_simple/input");
     std::vector<uint> expected_output =
-        ReadVectorFromFile("test_files/globalhisto");
+        ReadVectorFromFile("test_files_simple/globalhisto");
 
-    uint blockSize = input.size() / 8;
-    uint numBlocks = (input.size() + blockSize - 1) / blockSize;
-    uint numBuckets = 1 << kSizeMaskTest;
+    uint blockSize = 2;
+    uint numBlocks = 4;
+    uint numBuckets = 2;
     std::vector<uint> globalHisto = reduceLocalHistoToGlobal(blockHistograms,
                                     numBlocks, numBuckets);
     bool success = true;
@@ -110,11 +114,11 @@ void Test2() {
 }
 
 void Test3() {
-    std::vector<uint> globalHisto = ReadVectorFromFile("test_files/globalhisto");
+    std::vector<uint> globalHisto = ReadVectorFromFile("test_files_simple/globalhisto");
     std::vector<uint> expected_output =
-        ReadVectorFromFile("test_files/globalhistoexscan");
+        ReadVectorFromFile("test_files_simple/globalhistoexscan");
 
-    uint numBuckets = 1 << kSizeMaskTest;
+    uint numBuckets = 2;
     std::vector<uint> globalHistoExScan = scanGlobalHisto(globalHisto, numBuckets);
     bool success = true;
     EXPECT_VECTOR_EQ(expected_output, globalHistoExScan, &success);
@@ -122,17 +126,17 @@ void Test3() {
 }
 
 void Test4() {
-    std::vector<uint> input = ReadVectorFromFile("test_files/input");
+    std::vector<uint> input = ReadVectorFromFile("test_files_simple/input");
     std::vector<uint> expected_output =
-        ReadVectorFromFile("test_files/blockexscan");
+        ReadVectorFromFile("test_files_simple/blockexscan");
 
-    uint blockSize = input.size() / 8;
-    uint numBlocks = (input.size() + blockSize - 1) / blockSize;
-    uint numBuckets = 1 << kSizeMaskTest;
+    uint blockSize = 2;
+    uint numBlocks = 4;
+    uint numBuckets = 2;
     std::vector<uint> globalHistoExScan =
-        ReadVectorFromFile("test_files/globalhistoexscan");
+        ReadVectorFromFile("test_files_simple/globalhistoexscan");
     std::vector<uint> blockHistograms =
-        ReadVectorFromFile("test_files/blockhistograms");
+        ReadVectorFromFile("test_files_simple/blockhistograms");
     std::vector<uint> blockExScan = computeBlockExScanFromGlobalHisto(numBuckets,
                                     numBlocks, globalHistoExScan, blockHistograms);
     bool success = true;
@@ -141,18 +145,18 @@ void Test4() {
 }
 
 void Test5() {
-    std::vector<uint> blockExScan = ReadVectorFromFile("test_files/blockexscan");
-    std::vector<uint> input = ReadVectorFromFile("test_files/input");
-    std::vector<uint> expected_output = ReadVectorFromFile("test_files/sorted");
+    std::vector<uint> blockExScan = ReadVectorFromFile("test_files_simple/blockexscan");
+    std::vector<uint> input = ReadVectorFromFile("test_files_simple/input");
+    std::vector<uint> expected_output = ReadVectorFromFile("test_files_simple/sorted");
 
-    uint blockSize = input.size() / 8;
-    uint numBlocks = (input.size() + blockSize - 1) / blockSize;
-    uint numBuckets = 1 << kSizeMaskTest;
+    uint blockSize = 2;
+    uint numBlocks = 4;
+    uint numBuckets = 2;
     std::vector<uint> sorted(input.size());
     populateOutputFromBlockExScan(blockExScan, numBlocks, numBuckets, kStartBitTest,
                                   kSizeMaskTest, blockSize, input, sorted);
-    bool success = true;
 
+    bool success = true;
     EXPECT_VECTOR_EQ(expected_output, sorted, &success);
     PRINT_SUCCESS(success);
 }
