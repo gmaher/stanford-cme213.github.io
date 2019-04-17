@@ -7,6 +7,7 @@
 #include <omp.h>
 #include <stdlib.h>
 #include <math.h>
+#include <cstdio>
 
 #include "tests_q2.h"
 
@@ -33,6 +34,8 @@ std::vector<uint> computeBlockHistograms(const std::vector<uint>& keys,
     for (int i = 0; i < numBlocks; i++){
       for(int b=0; b<blockSize; b++){
         int index=i*blockSize+b;
+        if(index >= keys.size()) break;
+
         int bucket = 0;
         for (int j = 0; j < numBits; j++){
           if( (keys[index] >> (startBit+j)) & 1){
@@ -56,8 +59,12 @@ std::vector<uint> reduceLocalHistoToGlobal(const std::vector<uint>&
         blockHistograms, uint numBlocks, uint numBuckets) {
     std::vector<uint> globalHisto(numBuckets, 0);
 
-    for (int i = 0; i < blockHistograms.size(); i++){
-      globalHisto[(i+numBuckets)%numBuckets] += blockHistograms[i];
+    for(int b = 0; b < numBlocks; b++){
+      for(int i = 0; i < numBuckets; i++){
+        int index = b*numBuckets+i;
+        if(index >= blockHistograms.size()) break;
+        globalHisto[i] += blockHistograms[index];
+      }
     }
 
     return globalHisto;
@@ -96,9 +103,13 @@ std::vector<uint> computeBlockExScanFromGlobalHisto(uint numBuckets,
       blockExScan[i] = globalHistoExScan[i];
     }
 
-    for (int i = globalHistoExScan.size(); i < blockExScan.size(); i++){
-      blockExScan[i] = blockExScan[i-numBuckets]+
-        blockHistograms[i-numBuckets];
+    for (int b = 1; b < numBlocks; b++){
+      for (int i = 0; i < numBuckets; i++){
+        int b_prev = (b-1)*numBuckets+i;
+        int b_next = b*numBuckets+i;
+        if(b_next >= blockExScan.size()) break;
+        blockExScan[b_next] += blockExScan[b_prev]+blockHistograms[b_prev];
+      }
     }
 
     return blockExScan;
@@ -122,13 +133,20 @@ void populateOutputFromBlockExScan(const std::vector<uint>& blockExScan,
        for (int b=0; b < blockSize; b++){
            int index = block_offset+b;
 
+           if(index >= keys.size()) break;
+
            int bucket = 0;
            for (int j = 0; j < numBits; j++){
                if( (keys[index] >> (startBit+j)) & 1){
                  bucket += pow(2,j);
                }
            }
-           int key_index = offsets[bucket]+blockExScan[i*numBuckets+bucket];
+
+           int b_index = i*numBuckets+bucket;
+           if(b_index >= blockExScan.size()) break;
+
+           int key_index = offsets[bucket]+blockExScan[b_index];
+
            sorted[key_index] = keys[index];
            offsets[bucket] += 1;
        }
@@ -169,12 +187,13 @@ void radixSortParallelPass(std::vector<uint>& keys, std::vector<uint>& sorted,
 }
 
 int radixSortParallel(std::vector<uint>& keys, std::vector<uint>& keys_tmp,
-                      uint numBits) {
+                      uint numBits, uint numBlocks) {
 
+    uint blockSize = keys.size()/numBlocks;
     for(uint startBit = 0; startBit < kNumBitsUint; startBit += 2 * numBits) {
-        radixSortParallelPass(keys, keys_tmp, numBits, startBit, keys.size()/8);
+        radixSortParallelPass(keys, keys_tmp, numBits, startBit, blockSize);
         radixSortParallelPass(keys_tmp, keys, numBits, startBit + numBits,
-                              keys.size()/8);
+                              blockSize);
     }
 
     return 0;
@@ -274,7 +293,7 @@ int main() {
 
     // parallel radix sort
     double startRadixParallel = omp_get_wtime();
-    radixSortParallel(keys_parallel, temp_keys, kSizeMask);
+    radixSortParallel(keys_parallel, temp_keys, kSizeMask, 12);
     double endRadixParallel = omp_get_wtime();
 
     success = true;
@@ -290,17 +309,6 @@ int main() {
               std::endl;
 
 #ifdef QUESTION6
-    // std::cout << "Run parallel radix for 1,2,4,8,16,32,64 threads" << std::endl;
-    //
-    // for(int i = 0; i < 7; i++) {
-    //     omp_set_num_threads(1 << i);
-    //     double startRadixParallel = omp_get_wtime();
-    //     radixSortParallel(keys_parallels[i], temp_keys, kSizeMask);
-    //     double endRadixParallel = omp_get_wtime();
-    //     std::cout << (1 << i) << " threads: " << endRadixParallel - startRadixParallel
-    //               << std::endl;
-    // }
-
     std::vector<uint> jNumBlock = {1,2,4,8,12,16,24,32,40,48};
     printf("Threads Blocks / Timing\n ");
     for(auto jNum : jNumBlock) {
@@ -315,7 +323,7 @@ int main() {
         keys_parallel = keys_orig;
         double startRadixParallel = omp_get_wtime();
 
-        radixSortParallel(keys_parallel, temp_keys, kSizeMask);
+        radixSortParallel(keys_parallel, temp_keys, kSizeMask, jNum);
 
         double endRadixParallel = omp_get_wtime();
         EXPECT_VECTOR_EQ(keys_stl, keys_parallel, &success);
