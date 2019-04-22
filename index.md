@@ -39,11 +39,14 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 
 ### Reading and links
 
+* [A novel sorting algorithm for many-core architectures based on adaptive bitonic sort
+](https://ieeexplore.ieee.org/abstract/document/6267838)
+* [Adaptive Bitonic Sorting](https://pdfs.semanticscholar.org/bcdf/c4e40c79547c9daf89dada4e1c23056871cb.pdf)
 * [OpenMP API Syntax Reference Guide](https://www.openmp.org/wp-content/uploads/OpenMPRef-5.0-111802-web.pdf)
-* [C++ reference](https://en.cppreference.com/w/cpp)
-* [LLNL tutorial on Pthreads](https://computing.llnl.gov/tutorials/pthreads/)
 * [C++ threads](http://www.cplusplus.com/reference/thread/thread/)
 * [Simple examples of C++ multithreading](https://www.geeksforgeeks.org/multithreading-in-cpp/)
+* [LLNL tutorial on Pthreads](https://computing.llnl.gov/tutorials/pthreads/)
+* [C++ reference](https://en.cppreference.com/w/cpp)
 * [CUDA Programming Guides and References](http://docs.nvidia.com/cuda/index.html)
 * [CUDA C Programming Guide](http://docs.nvidia.com/cuda/pdf/CUDA_C_Programming_Guide.pdf)
 * [CUDA C Best Practices Guide](http://docs.nvidia.com/cuda/pdf/CUDA_C_Best_Practices_Guide.pdf)
@@ -55,14 +58,16 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 * [Race condition, mutex](Lecture Notes/Lecture_03.pdf)
 * [OpenMP, for loops](Lecture Notes/Lecture_04.pdf)
 * [OpenMP, reduction](Lecture Notes/Lecture_05.pdf)
+* [OpenMP, sort](Lecture Notes/Lecture_06.pdf)
 
 ### Computer code
 
-* [C++ standard library and lambda functions](Code/ex1_transform.cpp), and [solution](Code/ex1_transform_solution.cpp) 
-* [Threads](Code/pthread.zip)
-* [Mutex](Code/mutex.zip)
-* [OpenMP intro](Code/omp1.zip)
+* [OpenMP sort](Code/sort.zip)
 * [OpenMP reduction](Code/omp2.zip)
+* [OpenMP intro](Code/omp1.zip)
+* [Mutex](Code/mutex.zip)
+* [Threads](Code/pthread.zip)
+* [C++ standard library and lambda functions](Code/ex1_transform.cpp), and [solution](Code/ex1_transform_solution.cpp) 
 
 ### Tutorial notes
 
