@@ -29,7 +29,7 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 
 * [Homework 1](Homework/hw1.pdf) and [starter code](Homework/code_hw1.zip)
 * [Homework 2](Homework/hw2.pdf), [Radix Sort Tutorial](Homework/RadixSortTutorial.pdf), and [starter code](Homework/code_hw2.zip)
-* [Homework 3](Homework/hw3.pdf), and [starter code](Homework/code_hw3.zip)
+* [Homework 3](Homework/hw3.pdf) and [starter code](Homework/code_hw3.zip)
 
 ### Google Cloud Platform 
 * [Hw3 VM script](Code/create_vm_hw3.sh)
@@ -48,10 +48,12 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 * [OpenMP, reduction](Lecture Notes/Lecture_05.pdf)
 * [OpenMP, sort](Lecture Notes/Lecture_06.pdf)
 * [CUDA, introduction](Lecture Notes/Lecture_07.pdf)
+* [CUDA, device memory](Lecture Notes/Lecture_08.pdf)
 
 ### Computer code
 
 * [CUDA 1](Code/cuda1.zip)
+* [CUDA 2](Code/cuda2.zip)
 * [OpenMP sort](Code/sort.zip)
 * [OpenMP reduction](Code/omp2.zip)
 * [OpenMP intro](Code/omp1.zip)
@@ -84,7 +86,7 @@ Schedules are tentative and will be updated throughout the quarter.
 
 [See detailed schedule](./schedule.html)
 
-| Week          | Date                 | Topics                             | Homework/Project/Exam      |
+| Week          | Date                 | Topics                             | Homework/Project           |
 | :-----------: | -------------------- | ---------------------------------- | -------------------------- |
 | 1             | Mon, April 1         | Introduction and syllabus          |                            |
 | 1             | Wed, April 3         | Parallelism, Pthreads              | HW1 out                    |
