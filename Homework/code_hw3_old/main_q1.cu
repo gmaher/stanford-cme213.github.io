@@ -135,8 +135,6 @@
      ifs.read((char *) &text[0], length);
      ifs.close();
 
-     std::cout << "input[0] " << static_cast<unsigned>(text[0]) << "\n";
-
      // make number_of_doubles copies of the text
      // sizes_to_test should hold [1, 2, ...., number_of_doubles] * text.size()
      // text should hould number_of_doubles copies of text
