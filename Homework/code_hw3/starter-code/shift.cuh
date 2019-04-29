@@ -32,8 +32,8 @@ __global__ void shift_int(const uint *input_array, uint *output_array,
                           uint shift_amount, uint array_length)
 {
     uint i = blockIdx.x*blockDim.x + threadIdx.x;
-    uint r = array_length %4;
-    if (i < array_length/4+r){
+
+    if (4*i < array_length){
       output_array[i] = input_array[i]+shift_amount;
     }
 }
@@ -44,7 +44,11 @@ __global__ void shift_int(const uint *input_array, uint *output_array,
 __global__ void shift_int2(const uint2 *input_array, uint2 *output_array,
                            uint shift_amount, uint array_length)
 {
-    // TODO: fill in
+    uint i = blockIdx.x*blockDim.x + threadIdx.x;
+    if (8*i < array_length){
+      output_array[i].x = input_array[i].x+shift_amount;
+      output_array[i].y = input_array[i].y+shift_amount;
+    }
 }
 
 // the following three kernels launch their respective kernels
@@ -54,10 +58,8 @@ double doGPUShiftChar(const uchar *d_input, uchar *d_output,
                       uchar shift_amount, uint text_size, uint block_size)
 {
     uint arr_size = text_size*sizeof(unsigned char);
-    std::cout << "text_size " << text_size << ", arr_size " << arr_size << "\n";
+
     uint num_blocks = arr_size/block_size+1;
-    std::cout << "num blocks " << num_blocks << ", block size " << block_size << "\n";
-    std::cout << "shift amount " << static_cast<unsigned>(shift_amount) << "\n";
 
     // TODO: compute 4 byte shift value
     event_pair timer;
@@ -76,15 +78,12 @@ double doGPUShiftUInt(const uchar *d_input, uchar *d_output,
 {
     // TODO: compute grid dimensions
     //since each uint is 4 uchars, we only need 1/4 the blocks
-    uint num_blocks = (text_size/4+1)/block_size+1;
+    uint num_blocks = (text_size/4)/block_size+1;
 
     // TODO: compute 4 byte shift value
     uint shift_amount_int = (uint)(
       (shift_amount << 24) | (shift_amount << 16) | (shift_amount << 8) |
       (shift_amount) );
-
-    std::cout << "shift uchar " << (uint)shift_amount << "\n";
-    std::cout << "shift int " << shift_amount_int << "\n";
 
     event_pair timer;
     start_timer(&timer);
@@ -100,13 +99,19 @@ double doGPUShiftUInt2(const uchar* d_input, uchar* d_output,
                        uchar shift_amount, uint text_size, uint block_size)
 {
     // TODO: compute your grid dimensions
+    uint num_blocks = (text_size/8)/block_size+1;
 
     // TODO: compute 4 byte shift value
+    uint shift_amount_int = (uint)(
+      (shift_amount << 24) | (shift_amount << 16) | (shift_amount << 8) |
+      (shift_amount) );
 
     event_pair timer;
     start_timer(&timer);
 
     // TODO: launch kernel
+    shift_int2<<<num_blocks,block_size>>>((uint2*)d_input, (uint2*)d_output,
+      shift_amount_int, text_size);
 
     check_launch("gpu shift cipher uint2");
     return stop_timer(&timer);
