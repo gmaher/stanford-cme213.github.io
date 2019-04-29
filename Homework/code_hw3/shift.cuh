@@ -50,7 +50,9 @@ double doGPUShiftChar(const uchar *d_input, uchar *d_output,
                       uchar shift_amount, uint text_size, uint block_size)
 {
     // TODO: compute your grid dimensions
-    uint num_blocks = text_size/block_size;
+    uint arr_size = text_size*sizeof(unsigned char);
+    std::cout << "text_size " << text_size << ", arr_size " << arr_size << "\n";
+    uint num_blocks = arr_size/block_size+1;
     std::cout << "num blocks " << num_blocks << ", block size " << block_size << "\n";
     std::cout << "shift amount " << static_cast<unsigned>(shift_amount) << "\n";
 
@@ -60,7 +62,7 @@ double doGPUShiftChar(const uchar *d_input, uchar *d_output,
 
     // TODO: launch kernel
     shift_char<<<num_blocks, block_size>>>(d_input, d_output,
-        shift_amount, text_size);
+        shift_amount, arr_size);
 
     check_launch("gpu shift cipher uint");
     return stop_timer(&timer);
