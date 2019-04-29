@@ -1,5 +1,5 @@
 CXX=nvcc
-CXXFLAGS=-std=c++11 --compiler-options -Wall -O3 -arch=sm_37
+CXXFLAGS=-std=c++11 --compiler-options -Wall -O3 -arch=sm_30
 SRC1=main_q1.cu
 SRC2=main_q2.cu
 
