@@ -19,7 +19,7 @@ __global__ void shift_char(const uchar *input_array, uchar *output_array,
                            uchar shift_amount, uint array_length)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < array_length){
+    if (i < 4*array_length){
       output_array[i] = input_array[i]+shift_amount;
     }
 }
@@ -31,7 +31,10 @@ __global__ void shift_char(const uchar *input_array, uchar *output_array,
 __global__ void shift_int(const uint *input_array, uint *output_array,
                           uint shift_amount, uint array_length)
 {
-    // TODO: fill in
+    uint i = blockIdx.x*blockDim.x + threadIdx.x;
+    if (i < array_length){
+      output_array[i] = input_array[i]+shift_amount;
+    }
 }
 
 /**
@@ -72,13 +75,22 @@ double doGPUShiftUInt(const uchar *d_input, uchar *d_output,
                       uchar shift_amount, uint text_size, uint block_size)
 {
     // TODO: compute grid dimensions
+    //since each uint is 4 uchars, we only need 1/4 the blocks
+    uint num_blocks = (text_size/4+1)/block_size+1;
 
     // TODO: compute 4 byte shift value
+    uint shift_amount_int = (uint)(
+      (shift_amount << 24) | (shift_amount << 16) | (shift_amount << 8) |
+      (shift_amount) );
+
+    std::cout << "shift uchar " << (uint)shift_amount << "\n";
+    std::cout << "shift int " << shift_amount_int << "\n";
 
     event_pair timer;
     start_timer(&timer);
 
-    // TODO: launch kernel
+    shift_int<<<num_blocks,block_size>>>((uint*)d_input, (uint*)d_output,
+      shift_amount_int, text_size);
 
     check_launch("gpu shift cipher uint");
     return stop_timer(&timer);
