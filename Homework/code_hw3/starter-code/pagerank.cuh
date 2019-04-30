@@ -3,7 +3,7 @@
 
 #include "util.cuh"
 
-/* 
+/*
  * Each kernel handles the update of one pagerank score. In other
  * words, each kernel handles one row of the update:
  *
@@ -23,7 +23,7 @@ __global__ void device_graph_propagate(
     // TODO: fill in the kernel code here
 }
 
-/* 
+/*
  * This function executes a specified number of iterations of the
  * pagerank algorithm. The variables are:
  *
@@ -63,10 +63,23 @@ double device_graph_iterate(
     int avg_edges
 ) {
     // TODO: allocate GPU memory
+    const int num_bytes_alloc = (num_nodes + 1) * sizeof(uint);
+
+    uint *d_node_values_input  = nullptr;
+    uint *d_node_values_output = nullptr;
+
+    cudaMalloc((void **) &d_node_values_input,  num_bytes_alloc);
+    cudaMalloc((void **) &d_node_values_output, num_bytes_alloc);
 
     // TODO: check for allocation failure
+    if (!d_node_values_input || !d_node_values_output)
+    {
+        std::cerr << "Couldn't allocate memory!" << std::endl;
+        return 1;
+    }
 
     // TODO: copy data to the GPU
+    cudaMemcpy(d_node_values_input, &h_node_values_input[0], num_nodes, cudaMemcpyHostToDevice);
 
     event_pair timer;
     start_timer(&timer);
