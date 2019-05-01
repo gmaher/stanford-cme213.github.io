@@ -22,13 +22,13 @@ __global__ void device_graph_propagate(
 ) {
     uint i = blockIdx.x*blockDim.x + threadIdx.x;
     if(i < num_nodes){
-      graph_nodes_out[i] = 0;
+      graph_nodes_out[i] = 0.f;
       for (uint j = graph_indices[i]; j < graph_indices[i+1]; j++){
         uint k = graph_edges[j];
-        graph_nodes_out[i] += inv_edges_per_node[k]*graph_nodes_in[k];
+        graph_nodes_out[i] += (num_nodes*inv_edges_per_node[k])*graph_nodes_in[k];
       }
-      graph_nodes_out[i] += 1.0/(num_nodes);
-      graph_nodes_out[i] *= 0.5;
+      graph_nodes_out[i] += 1;
+      graph_nodes_out[i] /= (2*num_nodes);
     }
 }
 
@@ -109,7 +109,7 @@ double device_graph_iterate(
     const int num_blocks = num_nodes/block_size+1;
 
     // TODO: launch your kernels the appropriate number of iterations
-    for (int i = 0; i < nr_iterations/2; i++){
+    for (int i = 0; i < nr_iterations; i++){
       device_graph_propagate<<<num_blocks, block_size>>>(
         d_graph_indices, d_graph_edges, d_node_values_input,
         d_node_values_output, d_inv_edges_per_node, num_nodes
@@ -125,7 +125,7 @@ double device_graph_iterate(
     double gpu_elapsed_time = stop_timer(&timer);
 
     // TODO: copy final data back to the host for correctness checking
-    cudaMemcpy(h_gpu_node_values_output, &d_node_values_output[0], num_bytes_alloc_float, cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_gpu_node_values_output, &d_node_values_input[0], num_bytes_alloc_float, cudaMemcpyDeviceToHost);
 
 
     // TODO: free the memory you allocated!
