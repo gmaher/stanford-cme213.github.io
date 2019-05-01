@@ -26,11 +26,11 @@ typedef unsigned int uint;
 // amount of floating point numbers between answer and computed value
 // for the answer to be taken correctly. 2's complement magick.
 constexpr int MAX_ULPS = 100;
-constexpr int NUM_ITERATIONS = 6; 
+constexpr int NUM_ITERATIONS = 6;
 
 
 void host_graph_propagate(
-    uint *graph_indices, 
+    uint *graph_indices,
     uint *graph_edges,
     float *graph_nodes_in,
     float *graph_nodes_out,
@@ -38,7 +38,7 @@ void host_graph_propagate(
     int num_nodes
 ) {
     // for each node
-    for (int i = 0; i < num_nodes; i++) 
+    for (int i = 0; i < num_nodes; i++)
     {
         float sum = 0.f;
 
@@ -53,8 +53,8 @@ void host_graph_propagate(
 }
 
 double host_graph_iterate(
-    uint *graph_indices, 
-    uint *graph_edges, 
+    uint *graph_indices,
+    uint *graph_edges,
     float *graph_nodes_in,
     float *graph_nodes_out,
     float *inv_edges_per_node,
@@ -68,7 +68,7 @@ double host_graph_iterate(
 
     start_timer(&timer);
 
-    for(int iter = 0; iter < nr_iterations / 2; iter++) 
+    for(int iter = 0; iter < nr_iterations / 2; iter++)
     {
         host_graph_propagate(graph_indices, graph_edges, buffer_1, buffer_2,
                              inv_edges_per_node, num_nodes);
@@ -77,7 +77,7 @@ double host_graph_iterate(
     }
 
     // handle the odd case and copy memory to the output location
-    if (nr_iterations % 2) 
+    if (nr_iterations % 2)
     {
         host_graph_propagate(graph_indices, graph_edges, buffer_1, buffer_2,
                              inv_edges_per_node, num_nodes);
@@ -116,7 +116,7 @@ void generateGraph(
     h_graph_indices[0] = 0;
     int nodes_per_block = num_nodes / (avg_edges * 2 - 1) + 1;
 
-    for (int i = 0; i < num_nodes; i++) 
+    for (int i = 0; i < num_nodes; i++)
     {
         // each node has a deterministic number of edges that goes
         // 1, 1, 1, 1, ..., 2, 2, 2, 2, ..., 2 * avg_edges - 1
@@ -137,7 +137,7 @@ void generateGraph(
     }
 
     // invert the out degree
-    for (int i = 0; i < num_nodes; i++) 
+    for (int i = 0; i < num_nodes; i++)
     {
         h_inv_edges_per_node[i] = 1.f / h_inv_edges_per_node[i];
     }
@@ -161,26 +161,26 @@ void checkErrors(
         // error case //
         num_errors++;
 
-        if (num_errors < 10) 
+        if (num_errors < 10)
         {
             std::cerr << "Mismatch at node " << i << std::endl;
             std::cerr << "Expected " << c << " and got " << n << std::endl;
-        } 
-        else 
+        }
+        else
         {
             std::cerr << "\nToo many errors, quitting" << std::endl;
             exit(1);
         }
     }
 
-    if (num_errors) 
+    if (num_errors)
     {
         std::cerr << "There were errors, quitting" << std::endl;
         exit(1);
     }
 }
 
-int main() 
+int main()
 {
     // initalize CUDA and warmup kernel to avoid including these costs in the timings
     cudaFree(0);
@@ -191,10 +191,10 @@ int main()
 
     num_nodes.push_back(1 << 15);
 
-    for (uint i = 0; i < 5; ++i) 
+    for (uint i = 0; i < 5; ++i)
         num_nodes.push_back(num_nodes.back() * 2);
 
-    for (uint i = 2; i < 20; ++i) 
+    for (uint i = 2; i < 20; ++i)
         avg_edges.push_back(i);
 
     // index array has to be n+1 so that the last thread can
@@ -216,7 +216,7 @@ int main()
     for (const uint node : num_nodes)
         std::cout << std::setw(15) << node;
     std::cout << std::endl;
-    
+
     std::cout << std::setw(16) << "Avg. no. edges\n";
 
     for (const uint edge : avg_edges)
@@ -236,8 +236,8 @@ int main()
                 h_node_values_input.data(),
                 h_gpu_node_values_output.data(),
                 h_inv_edges_per_node.data(),
-                NUM_ITERATIONS, 
-                node, 
+                NUM_ITERATIONS,
+                node,
                 edge
             );
 
@@ -248,7 +248,7 @@ int main()
                 h_node_values_input.data(),
                 h_cpu_node_values_output.data(),
                 h_inv_edges_per_node.data(),
-                NUM_ITERATIONS, 
+                NUM_ITERATIONS,
                 node
             );
 
@@ -256,9 +256,9 @@ int main()
             checkErrors(h_gpu_node_values_output, h_cpu_node_values_output);
             // TODO: fill in the calculation for totalBytes
             uint totalBytes = 0;
-            std::cout << std::setw(15) << std::fixed 
-                      << std::setprecision(2) 
-                      << totalBytes / (gpu_time / 1000.) / 1E9 
+            std::cout << std::setw(15) << std::fixed
+                      << std::setprecision(2)
+                      << totalBytes / (gpu_time / 1000.) / 1E9
                       << std::flush;
         }
 
