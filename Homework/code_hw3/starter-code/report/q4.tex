@@ -1,0 +1,37 @@
+\section{Question 4}
+
+\subsection{a}
+For the non-void daxpy, we can create a new vector and use a \textbf{std::for\_each} to push the transformed elements into the new vector without altering in the input vector.
+
+For the void daxpy, we can overwrite the current vector in place using \textbf{std::transform}.
+
+Using the test $a=2$, $y=3$ on the input vector $[1,2,3]$ we get the output vector $[5,7,9]$ in both cases.
+
+\subsection{b}
+For a single student we can use a lambda function to compute the weighted grade for the class and return true if the student passed the class, false if not.
+
+The function \textbf{std::for\_all} can then be used with the above lambda function to determine whether a vector of students all passed the class.
+
+Testing on students with grades $(80,80,80)$ and $(90,90,90)$ we get true. Adding the student $(10,20,90)$ we then get false, as expected. 
+
+\subsection{c}
+We can first sort the entire list.
+
+Then using two \textbf{std::for\_each} calls we can select the odd and even numbers, which will still be sorted.
+
+We can then simply use two more \textbf{std::for\_each} calls to concatenate the vectors of odd and even numbers.
+
+Testing on the vector $[4,5,3,2]$ we get $[3,5,2,4]$ as expected.
+
+\subsection{d}
+We can use the linked lists sort function along with a lambda function to encode the requirements.
+
+For two entries, $x$ and $y$, These can be written as:
+\begin{itemize}
+	\item $x.row > y.row?$ return false.
+	\item $x.row < y.row?$ return true.
+	\item $x.col > y.col?$ return false.
+	\item return true otherwise since $x$ and $y$ have the same row but $x$ has a smaller column
+\end{itemize}
+
+Testing on the vector $[(1,1),(0,2),(0,1),(0,0)]$ we get $[(0,0),(0,1),(0,2),(1,1)]$ as expected.
