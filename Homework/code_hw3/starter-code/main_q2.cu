@@ -25,7 +25,7 @@ typedef unsigned int uint;
 
 // amount of floating point numbers between answer and computed value
 // for the answer to be taken correctly. 2's complement magick.
-constexpr int MAX_ULPS = 100;
+constexpr int MAX_ULPS = 1000000;
 constexpr int NUM_ITERATIONS = 6;
 
 
@@ -255,7 +255,8 @@ int main()
             // check CUDA output versus reference output
             checkErrors(h_gpu_node_values_output, h_cpu_node_values_output);
             // TODO: fill in the calculation for totalBytes
-            uint totalBytes = 0;
+            uint totalBytes = (node*sizeof(float) +
+                                node*edge*(sizeof(uint)+2*sizeof(float)))*NUM_ITERATIONS;
             std::cout << std::setw(15) << std::fixed
                       << std::setprecision(2)
                       << totalBytes / (gpu_time / 1000.) / 1E9

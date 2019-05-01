@@ -22,13 +22,13 @@ __global__ void device_graph_propagate(
 ) {
     uint i = blockIdx.x*blockDim.x + threadIdx.x;
     if(i < num_nodes){
-      graph_nodes_out[i] = 0.f;
+      float sum = 0.f;
       for (uint j = graph_indices[i]; j < graph_indices[i+1]; j++){
         uint k = graph_edges[j];
-        graph_nodes_out[i] += (num_nodes*inv_edges_per_node[k])*graph_nodes_in[k];
+        //printf("%d %f %f %f \n",k,inv_edges_per_node[k],graph_nodes_in[k], 1.0/num_nodes);
+        sum += inv_edges_per_node[k]*graph_nodes_in[k];
       }
-      graph_nodes_out[i] += 1;
-      graph_nodes_out[i] /= (2*num_nodes);
+      graph_nodes_out[i] = 0.5f/(float)num_nodes + 0.5f*sum;
     }
 }
 
