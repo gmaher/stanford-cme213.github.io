@@ -1,2 +1,15 @@
 \section{Question 1}
+
+\subsection{}
+See code.
+
+
+\subsection{}
 \verbatiminput{../q1_results.txt}
+
+\subsection{}
+Considering the theoretical peak bandwith is 240GB/s, but that for the char kernel it is estimated to be at most 25\%, this gives us an expected bandwidth of about 60GB/s. We see roughly this bandwidth for the char kernel once the problem size exceeds 19.7624 MB. For the smaller problem sizes the execution time is likely being dominated by read and write duration and the capacity of the GPU is being underutilized.
+
+The speed up from switching to uint happens because the number of reads and writes is reduced. For every 4 chars we only need to read one uint, the execution time for the threads when using chars and using uints is most likely very similar since we are only doing a single addition. This is why for the smaller problem sizes we see a roughly 4x speedup. For the larger problem sizes we cannot load all the text data into the registers on the GPU at once, so we start to run against the memory bandwidth limits.
+
+For the unit2, at smaller sizes, we get a further speedup but still are dominated by the read and write times. However for larger problems since we have 8 times fewer read and writes, we approach the benchmark speed of the K80 on Google cloud.
