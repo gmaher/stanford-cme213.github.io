@@ -31,6 +31,7 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 * [Homework 2](Homework/hw2.pdf), [Radix Sort Tutorial](Homework/RadixSortTutorial.pdf), and [starter code](Homework/code_hw2.zip)
 * [Homework 3](Homework/hw3.pdf) and [starter code](Homework/code_hw3.zip)
 * [Homework 4](Homework/hw4.pdf) and [starter code](Homework/code_hw4.zip)
+* [Final Project Part 1](Homework/FinalProjectPart1.pdf)
 
 ### Google Cloud Platform 
 * [Hw3 VM script](Code/create_vm_hw3.sh)
@@ -54,6 +55,7 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 * [CUDA, homework 4, finite-difference](Lecture Notes/Lecture_10.pdf)
 * [CUDA, team activity, reduction](Lecture Notes/Lecture_11.pdf)
 * [CUDA, Thrust](Lecture Notes/Lecture_12.pdf)
+* [Final project](Lecture Notes/Lecture_13.pdf)
 
 ### Computer code
 
