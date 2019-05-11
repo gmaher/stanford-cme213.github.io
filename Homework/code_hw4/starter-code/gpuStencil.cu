@@ -177,6 +177,31 @@ __global__
 void gpuStencilLoop(float* next, const float* __restrict__ curr, int gx, int nx, int ny,
                     float xcfl, float ycfl) {
     // TODO
+    uint x_id = blockIdx.x * blockDim.x + threadIdx.x;
+    uint y_id = (blockIdx.y * blockDim.y + threadIdx.y)*numYPerStep;
+
+    if (x_id < nx){
+      for (uint y = 0; y < numYPerStep; y++){
+        if(y_id+y >= ny){break;}
+        uint id = (y_id+y+order/2)*gx + order/2 + x_id;
+
+        //printf("x %u, y %u, id %u\n", x_id, y_id, id);
+        switch(order){
+          case 2:
+            next[id] = Stencil<2>(curr+id, gx, xcfl, ycfl);
+            break;
+          case 4:
+            next[id] = Stencil<4>(curr+id, gx, xcfl, ycfl);
+            break;
+          case 8:
+            next[id] = Stencil<8>(curr+id, gx, xcfl, ycfl);
+            break;
+          default:
+            printf("gpu order error");
+        }
+      }
+    }
+
 }
 
 /**
@@ -197,8 +222,15 @@ double gpuComputationLoop(Grid& curr_grid, const simParams& params) {
     Grid next_grid(curr_grid);
 
     // TODO: Declare variables/Compute parameters.
-    dim3 threads(0, 0);
-    dim3 blocks(0, 0);
+    const uint steps_y = 8;
+    uint t_per_y = 8;
+    uint t_per_x = CUDA_BLOCK_SIZE/t_per_y;
+
+    uint num_blocks_x = params.nx()/t_per_x+1;
+    uint num_blocks_y = params.ny()/(steps_y*t_per_y)+1;
+
+    dim3 threads(t_per_x, t_per_y);
+    dim3 blocks(num_blocks_x, num_blocks_y);
 
     event_pair timer;
     start_timer(&timer);
@@ -208,6 +240,25 @@ double gpuComputationLoop(Grid& curr_grid, const simParams& params) {
         BC.updateBC(next_grid.dGrid_, curr_grid.dGrid_);
 
         // TODO: Apply stencil.
+        switch(params.order()){
+          case 2:
+              gpuStencilLoop<2, steps_y><<<blocks, threads>>>(next_grid.dGrid_,
+                curr_grid.dGrid_, params.gx(), params.nx(), params.ny(),
+                (float)params.xcfl(), (float)params.ycfl());
+                break;
+          case 4:
+            gpuStencilLoop<4, steps_y><<<blocks, threads>>>(next_grid.dGrid_,
+              curr_grid.dGrid_, params.gx(), params.nx(), params.ny(),
+              (float)params.xcfl(), (float)params.ycfl());
+              break;
+          case 8:
+            gpuStencilLoop<8, steps_y><<<blocks, threads>>>(next_grid.dGrid_,
+              curr_grid.dGrid_, params.gx(), params.nx(), params.ny(),
+              (float)params.xcfl(), (float)params.ycfl());
+              break;
+          default:
+            printf("order error");
+        }
 
         Grid::swap(curr_grid, next_grid);
     }

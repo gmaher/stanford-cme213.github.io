@@ -366,7 +366,7 @@ int main(int argc, char* argv[]) {
         // Check for errors
         checkErrors(grid, gpuGrid, params, "globalErrors.txt", errorsg);
         // for debugging, save data to file
-        // gpuGrid.saveStateToFile("final_gpu_global.csv");
+        gpuGrid.saveStateToFile("./results/final_gpu_global.csv");
     }
 
     // This kernel iterates inside a large sub-domain
@@ -378,7 +378,7 @@ int main(int argc, char* argv[]) {
              << setw(15) << (params.calcBytes() / (elapsed / 1E3)) / 1E9 << endl;
         gpuGrid.fromGPU();
         checkErrors(grid, gpuGrid, params, "globalErrors.txt", errorsb);
-        // gpuGrid.saveStateToFile("final_gpu_block.csv");
+        gpuGrid.saveStateToFile("./results/final_gpu_block.csv");
     }
 
     // This kernel uses shared memory
