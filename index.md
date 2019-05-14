@@ -31,6 +31,8 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 * [Homework 2](Homework/hw2.pdf), [Radix Sort Tutorial](Homework/RadixSortTutorial.pdf), and [starter code](Homework/code_hw2.zip)
 * [Homework 3](Homework/hw3.pdf) and [starter code](Homework/code_hw3.zip)
 * [Homework 4](Homework/hw4.pdf) and [starter code](Homework/code_hw4.zip)
+* [Homework 5](Homework/hw5.pdf) and [starter code](Homework/code_hw5.zip)
+* [Final Project Part 1](Homework/FinalProjectPart1.pdf)
 
 ### Google Cloud Platform 
 * [Hw3 VM script](Code/create_vm_hw3.sh)
@@ -54,6 +56,8 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 * [CUDA, homework 4, finite-difference](Lecture Notes/Lecture_10.pdf)
 * [CUDA, team activity, reduction](Lecture Notes/Lecture_11.pdf)
 * [CUDA, Thrust](Lecture Notes/Lecture_12.pdf)
+* [Final project](Lecture Notes/Lecture_13.pdf)
+* [NVIDIA OpenACC](Lecture Notes/Lecture_14_NVIDIA_OpenACC.pdf)
 
 ### Computer code
 
@@ -71,6 +75,11 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 
 ### Reading and links
 
+* [OpenACC](https://www.openacc.org/)
+* [Compilers that support OpenACC](https://www.openacc.org/tools)
+* [OpenACC Specification (ver. 2.7 November 2018)](https://www.openacc.org/sites/default/files/inline-files/OpenACC.2.6.final.pdf)
+* [OpenACC Programming and Best Practices Guide](http://www.openacc.org/sites/default/files/OpenACC_Programming_Guide_0.pdf)
+* [OpenACC 2.7 API Reference Card](https://www.pgroup.com/lit/literature/openacc-api-guide-2.7.pdf)
 * [Thrust programming guide](https://docs.nvidia.com/cuda/thrust/index.html)
 * [Thrust examples](https://github.com/thrust/thrust/tree/master/examples)
 * [Thrust download page](https://developer.nvidia.com/thrust)
