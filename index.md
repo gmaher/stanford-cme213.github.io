@@ -33,6 +33,7 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 * [Homework 4](Homework/hw4.pdf) and [starter code](Homework/code_hw4.zip)
 * [Homework 5](Homework/hw5.pdf) and [starter code](Homework/code_hw5.zip)
 * [Final Project Part 1](Homework/FinalProjectPart1.pdf)
+* [Final Project Part 2](Homework/FinalProjectPart2.pdf) and [starter code](Homework/code_project.zip)
 
 ### Google Cloud Platform 
 * [Hw3 VM script](Code/create_vm_hw3.sh)
@@ -58,6 +59,7 @@ Pre-requisites include: C programming language and numerical algorithms (solutio
 * [CUDA, Thrust](Lecture Notes/Lecture_12.pdf)
 * [Final project](Lecture Notes/Lecture_13.pdf)
 * [NVIDIA OpenACC](Lecture Notes/Lecture_14_NVIDIA_OpenACC.pdf)
+* [NVIDIA Optimizations](Lecture Notes/Lecture_15_CUDA_Optimization.pdf)
 
 ### Computer code
 
