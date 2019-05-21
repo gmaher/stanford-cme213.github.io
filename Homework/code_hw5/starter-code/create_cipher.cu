@@ -21,7 +21,8 @@ struct isnot_lowercase_alpha : thrust::unary_function<unsigned char, bool>
     __host__ __device__
     bool operator()(const unsigned char& x) const
     {
-      return islower(x);
+      if (x>='a' && x<='z'){return false;}
+      return true;
     }
 };
 
@@ -97,16 +98,35 @@ std::vector<double> getLetterFrequencyGpu(const thrust::device_vector<unsigned c
     thrust::fill(in_vals.begin(), in_vals.end(), 1);
     thrust::fill(out_counts.begin(), out_counts.end(), 0);
 
-    auto new_end = thrust::reduce_by_key(text.begin(), text.end(),
+    auto new_end = thrust::reduce_by_key(text_sorted.begin(), text_sorted.end(),
       in_vals.begin(), out_keys.begin(), out_counts.begin());
 
-    auto first = thrust::make_zip_iterator(
-      thrust::make_tuple(out_counts.begin(), out_keys.begin())
-    );
+    thrust::transform(out_counts.begin(),out_counts.end(),
+      out_counts.begin(), thrust::negate<int>());
 
-    auto last = thrust::make_zip_iterator(
-      thrust::make_tuple(new_end.second, new_end.first)
-    );
+    thrust::sort_by_key(out_counts.begin(), new_end.second, out_keys.begin());
+
+    thrust::transform(out_counts.begin(),out_counts.end(),
+      out_counts.begin(), thrust::negate<int>());
+
+    int sum = thrust::reduce(out_counts.begin(), out_counts.end());
+
+    auto count_it = out_counts.begin();
+    auto key_it = out_keys.begin();
+
+    std::vector<unsigned char> h_keys;
+
+    for (int i = 0; i <5; i++){
+      h_keys.push_back(out_keys[i]);
+      freq_alpha_lower.push_back(out_counts[i]*1.0/sum);
+
+      printf("%c %f\n", h_keys[i], freq_alpha_lower[i]);
+      key_it++;
+      count_it++;
+      if (key_it == new_end.first){
+        break;
+      }
+    }
 
     return freq_alpha_lower;
 }
@@ -145,11 +165,16 @@ int main(int argc, char **argv)
 
     ifs.close();
 
-    thrust::device_vector<unsigned char> text_clean;
     // TODO: sanitize input to contain only a-z lowercase (use the
     // isnot_lowercase_alpha functor), calculate the number of characters
     // in the cleaned text and put the result in text_clean, make sure to
     // resize text_clean to the correct size!
+    thrust::device_vector<unsigned char> d_text(text);
+    thrust::transform_if(d_text.begin(), d_text.end(), d_text.begin(),
+      upper_to_lower(), isnot_lowercase_alpha());
+
+    thrust::device_vector<unsigned char> text_clean(d_text);
+
     int numElements = -1;
 
     std::cout << std::endl << "Before ciphering!" << std::endl << std::endl;
