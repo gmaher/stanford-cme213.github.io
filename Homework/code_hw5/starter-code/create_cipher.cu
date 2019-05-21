@@ -100,6 +100,14 @@ std::vector<double> getLetterFrequencyGpu(const thrust::device_vector<unsigned c
     auto new_end = thrust::reduce_by_key(text.begin(), text.end(),
       in_vals.begin(), out_keys.begin(), out_counts.begin());
 
+    auto first = thrust::make_zip_iterator(
+      thrust::make_tuple(out_counts.begin(), out_keys.begin())
+    );
+
+    auto last = thrust::make_zip_iterator(
+      thrust::make_tuple(new_end.second, new_end.first)
+    );
+
     return freq_alpha_lower;
 }
 
