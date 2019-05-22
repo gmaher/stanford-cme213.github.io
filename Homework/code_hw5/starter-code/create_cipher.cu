@@ -33,7 +33,10 @@ struct upper_to_lower : thrust::unary_function<unsigned char, unsigned char>
     __host__ __device__
     unsigned char operator()(const unsigned char& x) const
     {
-      return x+32;
+      if(x>='A' && x<='Z'){
+        return x+32;
+      }
+      return x;
     }
 };
 
@@ -70,9 +73,12 @@ std::vector<double> getLetterFrequencyCpu(const std::vector<unsigned char> &text
 
     std::vector<double> freq_alpha_lower;
 
-    for (unsigned char c = 'a'; c <= 'z'; ++c)
+    for (unsigned char c = 'a'; c <= 'z'; ++c){
         if (freq[c] > 0)
             freq_alpha_lower.push_back(freq[c] / static_cast<double>(sum_chars));
+
+        std::cout << c << " " << freq[c] << "\n";
+    }
 
     // pick the 5 most commonly occurring letters
     std::sort(freq_alpha_lower.begin(), freq_alpha_lower.end(), std::greater<double>());
@@ -86,20 +92,24 @@ std::vector<double> getLetterFrequencyGpu(const thrust::device_vector<unsigned c
     std::vector<double> freq_alpha_lower;
     // WARNING: make sure you handle the case of not all letters appearing
     // in the text.
-
+    std::cout << "text length" << text.size() << "\n";
     thrust::device_vector<unsigned char> text_sorted(text.size());
     thrust::copy(text.begin(), text.end(), text_sorted.begin());
 
     thrust::sort(text_sorted.begin(), text_sorted.end());
-    thrust::device_vector<unsigned char> in_vals(256);
-    thrust::device_vector<unsigned char> out_keys(256);
-    thrust::device_vector<unsigned int> out_counts(256);
-
-    thrust::fill(in_vals.begin(), in_vals.end(), 1);
-    thrust::fill(out_counts.begin(), out_counts.end(), 0);
+    thrust::device_vector<unsigned char> out_keys(26);
+    thrust::device_vector<unsigned int> out_counts(26);
 
     auto new_end = thrust::reduce_by_key(text_sorted.begin(), text_sorted.end(),
-      in_vals.begin(), out_keys.begin(), out_counts.begin());
+      thrust::make_constant_iterator(1), out_keys.begin(), out_counts.begin());
+
+    out_keys.erase(new_end.first, out_keys.end());
+    out_counts.erase(new_end.second, out_counts.end());
+
+    for(int i = 0; i < out_keys.size(); i++){
+        std::cout << out_keys[i] << " " << out_counts[i] << "\n";
+    }
+
 
     thrust::transform(out_counts.begin(),out_counts.end(),
       out_counts.begin(), thrust::negate<int>());
@@ -110,9 +120,10 @@ std::vector<double> getLetterFrequencyGpu(const thrust::device_vector<unsigned c
       out_counts.begin(), thrust::negate<int>());
 
     int sum = thrust::reduce(out_counts.begin(), out_counts.end());
+    std::cout << "sum=" << sum << "\n";
 
-    auto count_it = out_counts.begin();
     auto key_it = out_keys.begin();
+    auto count_it = out_counts.begin();
 
     std::vector<unsigned char> h_keys;
 
@@ -170,10 +181,13 @@ int main(int argc, char **argv)
     // in the cleaned text and put the result in text_clean, make sure to
     // resize text_clean to the correct size!
     thrust::device_vector<unsigned char> d_text(text);
+
     thrust::transform_if(d_text.begin(), d_text.end(), d_text.begin(),
       upper_to_lower(), isnot_lowercase_alpha());
 
-    thrust::device_vector<unsigned char> text_clean(d_text);
+    auto new_end = thrust::remove_if(d_text.begin(), d_text.end(), isnot_lowercase_alpha());
+
+    thrust::device_vector<unsigned char> text_clean(d_text.begin(), new_end);
 
     int numElements = -1;
 
