@@ -1,5 +1,5 @@
 CUD=nvcc
-CUDFLAGS=-O3 -arch=sm_30 -Xcompiler -Wall,-Wextra,-Wno-strict-aliasing -std=c++11
+CUDFLAGS=-O3 -arch=sm_35 -Xcompiler -Wall,-Wextra,-Wno-strict-aliasing -std=c++11
 CIPHER_PERIOD=11
 
 all: create_cipher solve_cipher

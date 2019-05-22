@@ -8,6 +8,9 @@
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 #include <thrust/functional.h>
+#include <thrust/random/linear_congruential_engine.h>
+#include <thrust/random/uniform_int_distribution.h>
+#include <thrust/random.h>
 // You may include other thrust headers if necessary.
 
 #include "test_macros.h"
@@ -43,16 +46,18 @@ struct upper_to_lower : thrust::unary_function<unsigned char, unsigned char>
 // apply a shift with appropriate wrapping
 struct apply_shift : thrust::binary_function<unsigned char, int, unsigned char>
 {
-    const unsigned char* shifts;
-    const int period;
+    thrust::device_ptr<unsigned int> shifts;
+    unsigned int period;
 
-    apply_shift(unsigned char* shifts_, int& period_): period(period_){
+  public:
+    apply_shift(thrust::device_ptr<unsigned int> shifts_, unsigned int period_){
+      period = period_;
       shifts = shifts_;
     }
 
     __host__ __device__
     unsigned char operator()(const unsigned char& x, const int& loc){
-      return x + *(shifts+(loc%period));
+      return x;
     }
 };
 
@@ -73,12 +78,9 @@ std::vector<double> getLetterFrequencyCpu(const std::vector<unsigned char> &text
 
     std::vector<double> freq_alpha_lower;
 
-    for (unsigned char c = 'a'; c <= 'z'; ++c){
+    for (unsigned char c = 'a'; c <= 'z'; ++c)
         if (freq[c] > 0)
             freq_alpha_lower.push_back(freq[c] / static_cast<double>(sum_chars));
-
-        std::cout << c << " " << freq[c] << "\n";
-    }
 
     // pick the 5 most commonly occurring letters
     std::sort(freq_alpha_lower.begin(), freq_alpha_lower.end(), std::greater<double>());
@@ -92,7 +94,6 @@ std::vector<double> getLetterFrequencyGpu(const thrust::device_vector<unsigned c
     std::vector<double> freq_alpha_lower;
     // WARNING: make sure you handle the case of not all letters appearing
     // in the text.
-    std::cout << "text length" << text.size() << "\n";
     thrust::device_vector<unsigned char> text_sorted(text.size());
     thrust::copy(text.begin(), text.end(), text_sorted.begin());
 
@@ -105,11 +106,6 @@ std::vector<double> getLetterFrequencyGpu(const thrust::device_vector<unsigned c
 
     out_keys.erase(new_end.first, out_keys.end());
     out_counts.erase(new_end.second, out_counts.end());
-
-    for(int i = 0; i < out_keys.size(); i++){
-        std::cout << out_keys[i] << " " << out_counts[i] << "\n";
-    }
-
 
     thrust::transform(out_counts.begin(),out_counts.end(),
       out_counts.begin(), thrust::negate<int>());
@@ -142,6 +138,13 @@ std::vector<double> getLetterFrequencyGpu(const thrust::device_vector<unsigned c
     return freq_alpha_lower;
 }
 
+int rand(void)
+{
+  static thrust::default_random_engine rng;
+  static thrust::uniform_int_distribution<int> dist(1, 25);
+  return dist(rng);
+}
+
 int main(int argc, char **argv)
 {
     if (argc != 3)
@@ -158,7 +161,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    unsigned int period = std::atoi(argv[2]);
+    int period = std::atoi(argv[2]);
     if (period < 4)
     {
         std::cerr << "Period must be at least 4!" << std::endl;
@@ -189,7 +192,7 @@ int main(int argc, char **argv)
 
     thrust::device_vector<unsigned char> text_clean(d_text.begin(), new_end);
 
-    int numElements = -1;
+    int numElements = text_clean.size();
 
     std::cout << std::endl << "Before ciphering!" << std::endl << std::endl;
     std::vector<double> letterFreqGpu = getLetterFrequencyGpu(text_clean);
@@ -201,19 +204,36 @@ int main(int argc, char **argv)
     thrust::device_vector<unsigned int> shifts(period);
     // TODO fill in shifts using thrust random number generation (make sure
     // not to allow 0-shifts, this would make for rather poor encryption).
+    thrust::generate(shifts.begin(),shifts.end(), rand);
+
 
     std::cout << std::endl << "Encryption key: ";
 
-    for (unsigned int i = 0; i < period; ++i)
-        std::cout << static_cast<char>('a' + shifts[i]);
-    std::cout << std::endl;
+    // for (unsigned int i = 0; i < period; ++i)
+    //     std::cout << static_cast<char>('a' + shifts[i]);
+    // std::cout << std::endl;
 
     thrust::device_vector<unsigned char> device_cipher_text(numElements);
 
+    thrust::device_vector<int> seq(numElements);
+    std::cout << "done shifting\n";
+    thrust::sequence(seq.begin(),seq.end());
+
     // TODO: Apply the shifts to text_clean and place the result in
     // device_cipher_text.
+    auto apl = apply_shift(shifts.data(), (unsigned int)period);
+    std::cout << "apl " << apl('a',2) << "\n";
 
-    thrust::host_vector<unsigned char> host_cipher_text = device_cipher_text;
+    std::cout << "done shifting\n";
+    thrust::transform(text_clean.begin(), text_clean.end(), seq.begin(), text_clean.begin(),
+      apl);
+    std::cout << "done shifting\n";
+    thrust::host_vector<unsigned char> host_cipher_text(numElements);
+    std::cout << "a " << host_cipher_text[0] << "\n";
+    std::cout << "a " << device_cipher_text.data()[0] << "\n";
+
+    thrust::copy(device_cipher_text.begin(), device_cipher_text.end(),
+      host_cipher_text.begin());
 
     std::cout << std::endl << "After ciphering!" << std::endl << std::endl;
     getLetterFrequencyGpu(device_cipher_text);
