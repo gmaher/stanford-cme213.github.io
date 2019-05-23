@@ -8,6 +8,9 @@
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 #include <thrust/functional.h>
+#include <thrust/copy.h>
+#include <thrust/fill.h>
+#include <thrust/sequence.h>
 #include <thrust/random/linear_congruential_engine.h>
 #include <thrust/random/uniform_int_distribution.h>
 #include <thrust/random.h>
@@ -57,7 +60,7 @@ struct apply_shift : thrust::binary_function<unsigned char, int, unsigned char>
 
     __host__ __device__
     unsigned char operator()(const unsigned char& x, const int& loc){
-      return x;
+      return x + shifts[loc%period];
     }
 };
 
@@ -138,12 +141,17 @@ std::vector<double> getLetterFrequencyGpu(const thrust::device_vector<unsigned c
     return freq_alpha_lower;
 }
 
-int rand(void)
-{
-  static thrust::default_random_engine rng;
-  static thrust::uniform_int_distribution<int> dist(1, 25);
-  return dist(rng);
-}
+struct randGen{
+  __host__ __device__
+  int operator()(int i)
+  {
+    thrust::default_random_engine rng;
+    thrust::uniform_int_distribution<int> dist(1,25);
+    rng.discard(i);
+    return dist(rng);
+  }
+};
+
 
 int main(int argc, char **argv)
 {
@@ -193,7 +201,7 @@ int main(int argc, char **argv)
     thrust::device_vector<unsigned char> text_clean(d_text.begin(), new_end);
 
     int numElements = text_clean.size();
-
+    std::cout << "numElements="<<numElements<<"\n";
     std::cout << std::endl << "Before ciphering!" << std::endl << std::endl;
     std::vector<double> letterFreqGpu = getLetterFrequencyGpu(text_clean);
     std::vector<double> letterFreqCpu = getLetterFrequencyCpu(text);
@@ -202,35 +210,34 @@ int main(int argc, char **argv)
     PRINT_SUCCESS(success);
 
     thrust::device_vector<unsigned int> shifts(period);
-    // TODO fill in shifts using thrust random number generation (make sure
-    // not to allow 0-shifts, this would make for rather poor encryption).
-    thrust::generate(shifts.begin(),shifts.end(), rand);
-
+    // // TODO fill in shifts using thrust random number generation (make sure
+    // // not to allow 0-shifts, this would make for rather poor encryption).
+    thrust::transform(
+            thrust::make_counting_iterator(0),
+            thrust::make_counting_iterator(period),
+            shifts.begin(),
+    randGen());
 
     std::cout << std::endl << "Encryption key: ";
 
-    // for (unsigned int i = 0; i < period; ++i)
-    //     std::cout << static_cast<char>('a' + shifts[i]);
-    // std::cout << std::endl;
+    for (unsigned int i = 0; i < period; ++i)
+        std::cout << static_cast<char>('a' + shifts[i]);
+    std::cout << std::endl;
 
-    thrust::device_vector<unsigned char> device_cipher_text(numElements);
+    thrust::device_vector<unsigned char> device_cipher_text(numElements, 'a');
 
     thrust::device_vector<int> seq(numElements);
-    std::cout << "done shifting\n";
     thrust::sequence(seq.begin(),seq.end());
 
     // TODO: Apply the shifts to text_clean and place the result in
     // device_cipher_text.
     auto apl = apply_shift(shifts.data(), (unsigned int)period);
-    std::cout << "apl " << apl('a',2) << "\n";
 
-    std::cout << "done shifting\n";
     thrust::transform(text_clean.begin(), text_clean.end(), seq.begin(), text_clean.begin(),
       apl);
-    std::cout << "done shifting\n";
-    thrust::host_vector<unsigned char> host_cipher_text(numElements);
-    std::cout << "a " << host_cipher_text[0] << "\n";
-    std::cout << "a " << device_cipher_text.data()[0] << "\n";
+
+    thrust::copy(text_clean.begin(), text_clean.end(),
+        device_cipher_text.begin());
 
     thrust::copy(device_cipher_text.begin(), device_cipher_text.end(),
       host_cipher_text.begin());
