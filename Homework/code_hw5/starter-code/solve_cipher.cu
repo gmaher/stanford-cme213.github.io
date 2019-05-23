@@ -16,14 +16,39 @@
 // do not create new ones
 
 // this can be the same as in create_cipher.cu
-struct apply_shift : thrust::binary_function<unsigned char, int, unsigned char> 
+// apply a shift with appropriate wrapping
+struct apply_shift : thrust::binary_function<unsigned char, int, unsigned char>
 {
-    // TODO
+    thrust::device_ptr<unsigned int> shifts;
+    unsigned int period;
+
+  public:
+    apply_shift(thrust::device_ptr<unsigned int> shifts_, unsigned int period_){
+      period = period_;
+      shifts = shifts_;
+    }
+
+    __host__ __device__
+    unsigned char operator()(const unsigned char& x, const int& loc){
+      return x + shifts[loc%period];
+    }
 };
+
+struct matchElems : thrust::binary_function<unsigned char, unsigned char, int>
+{
+    __host__ __device__
+    int operator()(const unsigned char& x, const unsigned char& y){
+      if (x==y){
+        return 1;
+      }
+      return 0;
+    }
+};
+
 
 int main(int argc, char **argv)
 {
-    if (argc != 2) 
+    if (argc != 2)
     {
         std::cerr << "No cipher text given!" << std::endl;
         return 1;
@@ -60,28 +85,34 @@ int main(int argc, char **argv)
         bool found = false;
         int shift_idx = 4; // Start at index 4.
 
-        while (!found) 
+        while (!found)
         {
             // TODO: Use thrust to compute the number of characters that match
             // when shifting text_clean by shift_idx.
-            int numMatches = 0; // = ?  TODO
+            thrust::device_vector<unsigned char> text_shift(text_clean.size()-shift_idx);
+            thrust::copy(text_clean.begin()+shift_idx, text_clean.end(),text_shift.begin());
+
+            thrust::transform(text_shift.begin(), text_shift.end(), text_clean.begin(),
+              text_shift.begin(), matchElems());
+
+            int numMatches = thrust::reduce(text_shift.begin(), text_shift.end());
 
             double ioc = numMatches / (static_cast<double>(text_clean.size() - shift_idx) / 26.);
 
             std::cout << "Period " << shift_idx << " ioc: " << ioc << std::endl;
 
-            if (ioc > 1.6) 
+            if (ioc > 1.6)
             {
-                if (keyLength == 0) 
+                if (keyLength == 0)
                 {
                     keyLength = shift_idx;
                     shift_idx = 2 * shift_idx - 1; // check double the period to make sure
-                } 
-                else if (2 * keyLength == shift_idx) 
+                }
+                else if (2 * keyLength == shift_idx)
                 {
                     found = true;
                 }
-                else 
+                else
                 {
                     std::cout << "Unusual pattern in text! Probably period is < 4."
                               << std::endl;

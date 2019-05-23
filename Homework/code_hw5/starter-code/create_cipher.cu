@@ -239,6 +239,8 @@ int main(int argc, char **argv)
     thrust::copy(text_clean.begin(), text_clean.end(),
         device_cipher_text.begin());
 
+    thrust::host_vector<unsigned char> host_cipher_text(numElements);
+
     thrust::copy(device_cipher_text.begin(), device_cipher_text.end(),
       host_cipher_text.begin());
 
