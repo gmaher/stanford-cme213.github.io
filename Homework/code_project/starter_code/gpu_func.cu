@@ -61,13 +61,13 @@ void gemm_gpu(float* A, float* B, float* C, float* D, int wA, int wB, float* alp
     __syncthreads();
 
     for (int i = 0; i < BLOCK_SIZE; i++){
-      Dsub += Asub[ty][i]*Bsub[ty][i];
+      Dsub += Asub[ty][i]*Bsub[i][tx];
     }
     __syncthreads();
   }
 
   int c = wB*BLOCK_SIZE*by+BLOCK_SIZE*bx;
-  D[c + tx + ty*wB] = (*alpha)*Csub + (*beta)*C[c + tx + ty*wB];
+  D[c + tx + ty*wB] = (*alpha)*Dsub + (*beta)*C[c + tx + ty*wB];
 
 }
 
