@@ -30,9 +30,18 @@ struct apply_shift : thrust::binary_function<unsigned char, int, unsigned char>
 
     __host__ __device__
     unsigned char operator()(const unsigned char& x, const int& loc){
-      return x + shifts[loc%period];
+      unsigned char y = x + shifts[loc%period];
+      int y_int = int(y);
+      if (y_int <= 97){
+         y_int = 97 + 26 - (97-y_int)%26;
+      }
+      if (y_int > 97){
+         y_int = 97 + (y_int-97)%26;
+      }
+      return static_cast<unsigned char>(y_int);
     }
 };
+
 
 struct matchElems : thrust::binary_function<unsigned char, unsigned char, int>
 {
@@ -86,17 +95,19 @@ int main(int argc, char **argv)
         int shift_idx = 4; // Start at index 4.
 
         while (!found)
+        //for(int i = 0; i < 10; i++)
         {
             // TODO: Use thrust to compute the number of characters that match
             // when shifting text_clean by shift_idx.
             thrust::device_vector<unsigned char> text_shift(text_clean.size()-shift_idx);
+            thrust::device_vector<int> matches(text_clean.size()-shift_idx);
             thrust::copy(text_clean.begin()+shift_idx, text_clean.end(),text_shift.begin());
 
             thrust::transform(text_shift.begin(), text_shift.end(), text_clean.begin(),
-              text_shift.begin(), matchElems());
+              matches.begin(), matchElems());
 
-            int numMatches = thrust::reduce(text_shift.begin(), text_shift.end());
-
+            int numMatches = thrust::reduce(matches.begin(), matches.end());
+            std::cout << "shift " << shift_idx << ", num matches " << numMatches << "\n";
             double ioc = numMatches / (static_cast<double>(text_clean.size() - shift_idx) / 26.);
 
             std::cout << "Period " << shift_idx << " ioc: " << ioc << std::endl;
@@ -166,7 +177,6 @@ int main(int argc, char **argv)
       thrust::transform(out_counts.begin(),out_counts.end(),
         out_counts.begin(), thrust::negate<int>());
 
-      std::cout << out_keys[0]-'e' << " " << out_counts[0] << "\n";
       dShifts[i] = -(out_keys[0]-'e');
     }
 

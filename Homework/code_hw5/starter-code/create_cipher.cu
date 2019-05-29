@@ -60,7 +60,12 @@ struct apply_shift : thrust::binary_function<unsigned char, int, unsigned char>
 
     __host__ __device__
     unsigned char operator()(const unsigned char& x, const int& loc){
-      return x + shifts[loc%period];
+      unsigned char y = x + shifts[loc%period];
+      int y_int = int(y)-97;
+      if (y_int >= 26){
+         y_int = y_int%26;
+      }
+      return static_cast<unsigned char>(y_int+97);
     }
 };
 
