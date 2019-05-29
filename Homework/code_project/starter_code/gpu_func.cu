@@ -79,5 +79,34 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
            int M, int N, int K) {
     /* TODO: Write an efficient GEMM implementation on GPU */
 
+    float* Ad;
+    int a_size = M*N*sizeof(float);
+    cudaMalloc((void**)&Ad, a_size);
+    cudaMemcpy(Ad, A, a_size, cudaMemcpyHostToDevice);
+
+    float* Bd;
+    int b_size = N*K*sizeof(float);
+    cudaMalloc((void**)&Bd, b_size);
+    cudaMemcpy(Bd, B, b_size, cudaMemcpyHostToDevice);
+
+    float* Cd;
+    int C_size = M*K*sizeof(float);
+    cudaMalloc((void**)&Cd, c_size);
+    cudaMemcpy(Cd, C, c_size, cudaMemcpyHostToDevice);
+
+    float* Dd;
+    cudaMalloc((void**)&Dd, c_size);
+
+    dim3 dimBlock(32,32);
+    dim3 dimGrid(K/dimBlock.x, M/dimBlock.y);
+
+    gemm_gpu<<<dimGrid, dimBlock>>(Ad, Bd, Cd, Dd, N, K, alpha, beta);
+
+    cudaMemcpy(D, Dd, c_size, cudaMemcpyDeviceToHost);
+
+    cudaFree(Ad);
+    cudaFree(Bd);
+    cudaFree(Cd);
+    cudaFree(Dd);  
     return 1;
 }
