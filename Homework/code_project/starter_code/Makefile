@@ -8,13 +8,13 @@ CUD=nvcc
 
 # Flags
 CFLAGS= -O2 -std=c++11 -I/usr/include
-LDFLAGS= -L/usr/local/cuda-10.0/lib64 -Wl,-rpath -Wl,.. -larmadillo -lcublas -lcudart 
-CUDFLAGS= -O2 -c -arch=sm_37 -Xcompiler -Wall,-Winline,-Wextra,-Wno-strict-aliasing 
+LDFLAGS= -L/usr/local/cuda-9.0/lib64 -Wl,-rpath -Wl,.. -larmadillo -lcublas -lcudart
+CUDFLAGS= -O2 -c -arch=sm_37 -lineinfo -Xcompiler -Wall,-Winline,-Wextra,-Wno-strict-aliasing
 INCFLAGS= -I/usr/local/cuda/include -I/usr/local/cuda/samples/common/inc -I$(INCDIR)
 #-fmad=false
 
-main: $(OBJDIR)/mnist.o $(OBJDIR)/tests.o $(OBJDIR)/common.o $(OBJDIR)/gpu_func.o $(OBJDIR)/neural_network.o $(OBJDIR)/main.o 
-	cd $(OBJDIR); $(CC) main.o neural_network.o mnist.o common.o gpu_func.o tests.o -o ../main $(LDFLAGS) 
+main: $(OBJDIR)/mnist.o $(OBJDIR)/tests.o $(OBJDIR)/common.o $(OBJDIR)/gpu_func.o $(OBJDIR)/neural_network.o $(OBJDIR)/main.o
+	cd $(OBJDIR); $(CC) main.o neural_network.o mnist.o common.o gpu_func.o tests.o -o ../main $(LDFLAGS)
 
 $(OBJDIR)/main.o: main.cpp utils/test_utils.h $(INCDIR)/neural_network.h
 	@mkdir -p $(OBJDIR)
@@ -44,4 +44,4 @@ clean:
 	rm -rf $(OBJDIR)/*.o main
 
 clear:
-	rm -rf  cme213.* 
+	rm -rf  cme213.*

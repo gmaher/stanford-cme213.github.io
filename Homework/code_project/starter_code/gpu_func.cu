@@ -5,6 +5,8 @@
 #include <iostream>
 #include "cublas_v2.h"
 
+#define BLOCK_SIZE 32
+
 __global__
 void device_add_one(int* d_result, int t) {
     *d_result = t + 1;
@@ -33,41 +35,81 @@ int useless_gpu_add_one(int t) {
     return result;
 }
 
+// __global__
+// void gemm_gpu(double* A, double* B, double* C, double* D, int hA, int wA,
+//     int hB, int wB, double alpha, double beta){
+//   int bx = blockIdx.x;
+//   int by = blockIdx.y;
+//
+//   int tx = threadIdx.x;
+//   int ty = threadIdx.y;
+//
+//   int a_start = wA*BLOCK_SIZE*by;
+//   int a_end   = a_start+wA-1;
+//   int a_step  = BLOCK_SIZE;
+//
+//   int b_start = BLOCK_SIZE*bx*wB;
+//   int b_step  = BLOCK_SIZE*wB;
+//
+//   float Dsub = 0;
+//
+//   for (int a = a_start, b=b_start; a <= a_end; a+=a_step, b+=b_step){
+//
+//     __shared__ float Asub[BLOCK_SIZE][BLOCK_SIZE];
+//     __shared__ float Bsub[BLOCK_SIZE][BLOCK_SIZE];
+//
+//     if (bx*BLOCK_SIZE+tx >= wA || bx*BLOCK_SIZE+ty >= hB ||
+//       by*BLOCK_SIZE+ty >= hA || by*BLOCK_SIZE+tx >= wB){
+//       Asub[ty][tx] = 0;
+//       Bsub[ty][tx] = 0;
+//     }
+//     else{
+//       //printf("a: %u %u %u %u\n", a,tx,ty,a + tx + wA*ty);
+//       //printf("b: %u %u %u %u\n", b,tx,ty,b + tx + wA*ty);
+//       Asub[ty][tx] = A[a + tx + wA*ty];
+//       Bsub[ty][tx] = B[b + tx + wB*ty];
+//     }
+//
+//     __syncthreads();
+//
+//     for (int i = 0; i < BLOCK_SIZE; i++){
+//       Dsub += Asub[ty][i]*Bsub[i][tx];
+//     }
+//     __syncthreads();
+//   }
+//
+//   if (bx*BLOCK_SIZE+tx < wB && by*BLOCK_SIZE+ty < hA){
+//     int c = wB*BLOCK_SIZE*by+BLOCK_SIZE*bx;
+//     //printf("c: %u %u %u %u\n", c,tx,ty,c + tx + ty*wB);
+//     D[c + tx + ty*wB] = alpha*Dsub + beta*C[c + tx + ty*wB];
+//   }
+//
+// }
+
 __global__
-void gemm_gpu(float* A, float* B, float* C, float* D, int wA, int wB, float* alpha, float* beta){
+void gemm_gpu(double* A, double* B, double* C, double* D, int hA, int wA,
+    int hB, int wB, double alpha, double beta){
   int bx = blockIdx.x;
   int by = blockIdx.y;
 
   int tx = threadIdx.x;
   int ty = threadIdx.y;
 
-  int a_start = wA*BLOCK_SIZE*by;
-  int a_end   = a_start+wA-1;
-  int a_step  = BLOCK_SIZE;
+  int row = by*BLOCK_SIZE+ty;
+  int col = bx*BLOCK_SIZE+tx;
 
-  int b_start = BLOCK_SIZE*bx;
-  int b_step  = BLOCK_SIZE*wB;
+  int a_start = row;
+  int a_step  = hA;
+  int b_start = col*hB;
 
-  float Dsub = 0;
+  double entry = 0;
 
-  for (int a = a_start, b=b_start; a <= a_end; a+=a_step, b+=b_step){
-
-    __shared__ float Asub[BLOCK_SIZE][BLOCK_SIZE];
-    __shared__ float Bsub[BLOCK_SIZE][BLOCK_SIZE];
-
-    Asub[ty][tx] = A[a + tx + wA*ty];
-    Bsub[ty][tx] = B[b + tx + wB*ty];
-
-    __syncthreads();
-
-    for (int i = 0; i < BLOCK_SIZE; i++){
-      Dsub += Asub[ty][i]*Bsub[i][tx];
+  if (row < hA && col < wB){
+    for (int i = 0; i < hB; i++){
+      entry += A[a_start+i*a_step]*B[b_start+i];
     }
-    __syncthreads();
+    D[row+col*hA] = alpha*entry + beta*C[row+col*hA];
   }
-
-  int c = wB*BLOCK_SIZE*by+BLOCK_SIZE*bx;
-  D[c + tx + ty*wB] = (*alpha)*Dsub + (*beta)*C[c + tx + ty*wB];
 
 }
 
@@ -79,34 +121,20 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
            int M, int N, int K) {
     /* TODO: Write an efficient GEMM implementation on GPU */
 
-    float* Ad;
-    int a_size = M*N*sizeof(float);
-    cudaMalloc((void**)&Ad, a_size);
-    cudaMemcpy(Ad, A, a_size, cudaMemcpyHostToDevice);
 
-    float* Bd;
-    int b_size = N*K*sizeof(float);
-    cudaMalloc((void**)&Bd, b_size);
-    cudaMemcpy(Bd, B, b_size, cudaMemcpyHostToDevice);
+    int c_size = M*N*sizeof(double);
 
-    float* Cd;
-    int C_size = M*K*sizeof(float);
-    cudaMalloc((void**)&Cd, c_size);
-    cudaMemcpy(Cd, C, c_size, cudaMemcpyHostToDevice);
-
-    float* Dd;
+    double* Dd;
     cudaMalloc((void**)&Dd, c_size);
 
-    dim3 dimBlock(32,32);
-    dim3 dimGrid(K/dimBlock.x, M/dimBlock.y);
+    dim3 dimBlock(BLOCK_SIZE,BLOCK_SIZE);
+    dim3 dimGrid(N/dimBlock.x+1, M/dimBlock.y+1);
 
-    gemm_gpu<<<dimGrid, dimBlock>>(Ad, Bd, Cd, Dd, N, K, alpha, beta);
+    gemm_gpu<<<dimGrid, dimBlock>>>(A, B, C, Dd, M, K, K, N,
+      *alpha, *beta);
 
-    cudaMemcpy(D, Dd, c_size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(C, Dd, c_size, cudaMemcpyDeviceToDevice);
 
-    cudaFree(Ad);
-    cudaFree(Bd);
-    cudaFree(Cd);
-    cudaFree(Dd);  
-    return 1;
+    cudaFree(Dd);
+    return 0;
 }
