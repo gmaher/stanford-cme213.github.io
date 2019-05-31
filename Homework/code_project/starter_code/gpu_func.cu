@@ -138,3 +138,146 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     cudaFree(Dd);
     return 0;
 }
+
+__global__
+void sigmoid_gpu(double* __restrict__ X, double* __restrict__ S, int M, int N){
+  int bx = blockIdx.x;
+  int by = blockIdx.y;
+
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+
+  int row = by*BLOCK_SIZE+ty;
+  int col = bx*BLOCK_SIZE+tx;
+
+  int id = col*M+row;
+
+  if (row < M && col < N){
+    S[id] = 1.0/(1.0+exp(X[id]));
+  }
+
+}
+
+int mySigmoid(double* __restrict__ X, double* __restrict__ S, int M, int N) {
+    dim3 dimBlock(BLOCK_SIZE,BLOCK_SIZE);
+    dim3 dimGrid(N/dimBlock.x+1, M/dimBlock.y+1);
+
+    sigmoid_gpu<<<dimGrid, dimBlock>>>(X, S, M,N);
+    return 0;
+}
+
+__global__
+void hadamard_gpu(double* __restrict__ X, double* __restrict__ Y, double* __restrict__ H, int M, int N){
+  int bx = blockIdx.x;
+  int by = blockIdx.y;
+
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+
+  int row = by*BLOCK_SIZE+ty;
+  int col = bx*BLOCK_SIZE+tx;
+
+  int id = col*M+row;
+
+  if (row < M && col < N){
+    H[id] = X[id]*Y[id];
+  }
+
+}
+
+int myHadamard(double* __restrict__ X, double* __restrict__ Y, double* __restrict__ H, int M, int N) {
+    dim3 dimBlock(BLOCK_SIZE,BLOCK_SIZE);
+    dim3 dimGrid(N/dimBlock.x+1, M/dimBlock.y+1);
+
+    hadamard_gpu<<<dimGrid, dimBlock>>>(X, Y, H, M, N);
+    return 0;
+}
+
+__global__
+void transpose_gpu(double* __restrict__ X, double* __restrict__ Xt, int M, int N){
+  int bx = blockIdx.x;
+  int by = blockIdx.y;
+
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+
+  int row = by*BLOCK_SIZE+ty;
+  int col = bx*BLOCK_SIZE+tx;
+
+  int id1 = col*M+row;
+  int id2 = row*M+col;
+
+  if (row < M && col < N){
+    Xt[id2] = Xt[id1];
+  }
+
+}
+
+int myTranspose(double* __restrict__ X, double* __restrict__ Xt, int M, int N) {
+    dim3 dimBlock(BLOCK_SIZE,BLOCK_SIZE);
+    dim3 dimGrid(N/dimBlock.x+1, M/dimBlock.y+1);
+
+    transpose_gpu<<<dimGrid, dimBlock>>>(X, Xt, M, N);
+    return 0;
+}
+
+__global__
+void matrix_add_gpu(double* __restrict__ X, double* __restrict__ Y, double* __restrict__ Z,
+   int M, int N, double alpha){
+  int bx = blockIdx.x;
+  int by = blockIdx.y;
+
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+
+  int row = by*BLOCK_SIZE+ty;
+  int col = bx*BLOCK_SIZE+tx;
+
+  int id = col*M+row;
+
+  if (row < M && col < N){
+    Z[id] = X[id]+alpha*Y[id];
+  }
+
+}
+
+int myMatAdd(double* __restrict__ X, double* __restrict__ Y, double* __restrict__ Z, int M, int N, double alpha) {
+    dim3 dimBlock(BLOCK_SIZE,BLOCK_SIZE);
+    dim3 dimGrid(N/dimBlock.x+1, M/dimBlock.y+1);
+
+    matrix_add_gpu<<<dimGrid, dimBlock>>>(X, Y, Z, M, N, alpha);
+    return 0;
+}
+
+__global__
+void softmax_gpu(double* __restrict__ X, double* __restrict__ S, int M, int N){
+  int bx = blockIdx.x;
+  int by = blockIdx.y;
+
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+
+  int row = by*BLOCK_SIZE+ty;
+  int col = bx*BLOCK_SIZE+tx;
+
+  int id = col*M+row;
+
+  if (row < M && col < N){
+    double sum = 0;
+
+    for (int i = col*M; i<(col+1)*M; i++){
+      sum += exp(X[i]);
+    }
+
+    S[id] = exp(X[id])/sum;
+  }
+
+}
+
+int mySoftmax(double* __restrict__ X, double* __restrict__ S, int M, int N) {
+    dim3 dimBlock(BLOCK_SIZE,BLOCK_SIZE);
+    dim3 dimGrid(N/dimBlock.x+1, M/dimBlock.y+1);
+
+    softmax_gpu<<<dimGrid, dimBlock>>>(X, S, M, N);
+    return 0;
+}

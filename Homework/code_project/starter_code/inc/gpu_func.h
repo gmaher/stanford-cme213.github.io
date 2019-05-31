@@ -44,4 +44,9 @@ int useless_gpu_add_one(int t);
 int myGEMM(double* A, double* B, double* C, double* alpha, double* beta, int M,
            int N, int K);
 
+int mySigmoid(double* S, double* X, int M, int N);
+int myHadamard(double* X, double* Y, double* H, int M, int N);
+int myTranspose(double* X, double* Xt, int M, int N);
+int myMatAdd(double* X, double* Y, double* Z, int M, int N, double alpha);
+int mySoftmax(double* X, double* S, int M, int N);
 #endif

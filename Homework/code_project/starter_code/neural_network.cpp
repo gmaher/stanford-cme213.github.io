@@ -294,11 +294,22 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
 
     int N = (rank == 0)?X.n_cols:0;
+    int M = X.n_rows;
+    int N_class = y.n_rows;
     MPI_SAFE_CALL(MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD));
 
     std::ofstream error_file;
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
+
+    if (rank == 0){
+      std::cout << "num procs=" << num_procs << "\n";
+      std::cout << "num cols X=" << N << "\n";
+      std::cout << "num rows X=" << M << "\n";
+      std::cout << "num classes Y=" << N_class << "\n";
+    }
+    std::cout << "hello from rank " << rank << "\n";
+    checkCudaErrors(cudaSetDevice(rank));
 
     /* HINT: You can obtain a raw pointer to the memory used by Armadillo Matrices
        for storing elements in a column major way. Or you can allocate your own array
@@ -307,6 +318,20 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
     /* iter is a variable used to manage debugging. It increments in the inner loop
        and therefore goes from 0 to epochs*num_batches */
+
+    //****************GPU WEIGHT INIT*************************
+    int proc_batch = batch_size/num_procs;
+    int x_size     = sizeof(double)*proc_batch*M;
+    int y_size     = sizeof(double)*proc_batch*N_class;
+
+    double* Xd;
+    double* Yd;
+
+    cudaMalloc((void**)&Xd, x_size);
+    cudaMalloc((void**)&Yd, y_size);
+
+
+    //********************************************************
     int iter = 0;
 
     for(int epoch = 0; epoch < epochs; ++epoch) {
@@ -320,6 +345,13 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              * 3. reduce the coefficient updates and broadcast to all nodes with `MPI_Allreduce()'
              * 4. update local network coefficient at each node
              */
+
+             if (rank == 0){
+               int last_col = std::min((batch + 1)*batch_size-1, N-1);
+               arma::mat X_batch = X.cols(batch * batch_size, last_col);
+               arma::mat y_batch = y.cols(batch * batch_size, last_col);
+             }
+
 
             if(print_every <= 0) {
                 print_flag = batch == 0;

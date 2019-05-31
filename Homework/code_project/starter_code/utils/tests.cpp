@@ -268,4 +268,44 @@ void BenchmarkGEMM() {
               << N << "; K = " << K << std::endl;
     TestGEMM(M, N, K);
     std::cout << "Completed GEMM 2" << std::endl;
+
+    //test sigmoid
+    double x_test[9];
+    std::fill_n(x_test,9,0);
+    double* xd_test;
+    cudaMalloc((void**)&xd_test, sizeof(double)*9);
+    cudaMemcpy(xd_test, x_test, sizeof(double)*9, cudaMemcpyHostToDevice);
+    mySigmoid(xd_test, xd_test, 3, 3);
+    cudaMemcpy(x_test, xd_test, sizeof(double)*9, cudaMemcpyDeviceToHost);
+    std::cout << "sigmoid " << x_test[0] << "\n";
+
+    //test hadamard
+    std::fill_n(x_test,9,0.5);
+    cudaMemcpy(xd_test, x_test, sizeof(double)*9, cudaMemcpyHostToDevice);
+    myHadamard(xd_test, xd_test, xd_test, 3, 3);
+    cudaMemcpy(x_test, xd_test, sizeof(double)*9, cudaMemcpyDeviceToHost);
+    std::cout << "hadamard " << x_test[0] << "\n";
+
+    //test transpose
+    std::fill_n(x_test,9,0.5);
+    x_test[2] = -1.0;
+    cudaMemcpy(xd_test, x_test, sizeof(double)*9, cudaMemcpyHostToDevice);
+    myTranspose(xd_test, xd_test, 3, 3);
+    cudaMemcpy(x_test, xd_test, sizeof(double)*9, cudaMemcpyDeviceToHost);
+    std::cout << "transpose " << x_test[6] << "\n";
+
+    //test transpose
+    std::fill_n(x_test,9,0.5);
+    cudaMemcpy(xd_test, x_test, sizeof(double)*9, cudaMemcpyHostToDevice);
+    myMatAdd(xd_test, xd_test, xd_test, 3, 3, 0.5);
+    cudaMemcpy(x_test, xd_test, sizeof(double)*9, cudaMemcpyDeviceToHost);
+    std::cout << "mat add " << x_test[0] << "\n";
+
+    //test transpose
+    std::fill_n(x_test,9,1.0);
+    cudaMemcpy(xd_test, x_test, sizeof(double)*9, cudaMemcpyHostToDevice);
+    mySoftmax(xd_test, xd_test, 3, 3);
+    cudaMemcpy(x_test, xd_test, sizeof(double)*9, cudaMemcpyDeviceToHost);
+    std::cout << "softmax " << x_test[0] << "\n";
+    cudaFree(xd_test);
 }
