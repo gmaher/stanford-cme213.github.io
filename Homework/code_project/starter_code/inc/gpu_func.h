@@ -4,6 +4,7 @@
 #include <cuda_runtime.h>
 #include <helper_cuda.h>
 #include <helper_functions.h>
+#include <armadillo>
 
 struct event_pair {
     cudaEvent_t start;
@@ -98,6 +99,15 @@ public:
        std::cout << "layer 2 h=" << h2 << ", w=" << w2 << "\n";
      }
 
+   void forward(const arma::mat& X){
+       const double* x_ptr = X.memptr();
+       std::cout << "Forward: x[0]=" << x_ptr[0] << "\n";
+
+   }
+
+   void backward(const arma::mat& X, const arma::mat& Y, double lr, double reg){
+
+   }
 };
 
 #endif

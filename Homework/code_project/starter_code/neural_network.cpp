@@ -308,6 +308,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       std::cout << "num rows X=" << M << "\n";
       std::cout << "num classes Y=" << N_class << "\n";
       NeuralNetworkGPU nn_gpu(M,N,N_class,batch_size);
+      nn_gpu.forward(X);
     }
     std::cout << "hello from rank " << rank << "\n";
     checkCudaErrors(cudaSetDevice(rank));
