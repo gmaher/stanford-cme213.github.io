@@ -161,6 +161,21 @@ public:
 
        cudaMemcpy(Xd, x_ptr, sizeof(double)*n_batch*n_feats, cudaMemcpyHostToDevice);
 
+//      myPrintMat(Xd, n_feats, n_batch, 3,3);
+
+//      std::cout << "x[0,0]=" << X(0,0) << "\n";
+//      std::cout << "x[0,1]=" << X(0,1) << "\n";
+//      std::cout << "x[0,2]=" << X(0,2) << "\n";
+
+//      std::cout << "x[1,0]=" << X(1,0) << "\n";
+//      std::cout << "x[1,1]=" << X(1,1) << "\n";
+//      std::cout << "x[1,2]=" << X(1,2) << "\n";
+
+//      std::cout << "x[2,0]=" << X(2,0) << "\n";
+//      std::cout << "x[2,1]=" << X(2,1) << "\n";
+//      std::cout << "x[390,2]=" << X(390,2) << "\n";
+
+
    }
 
    void backward(const arma::mat& X, const arma::mat& Y, double lr, double reg){
