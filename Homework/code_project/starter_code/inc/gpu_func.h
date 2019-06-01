@@ -102,6 +102,10 @@ public:
    void forward(const arma::mat& X){
        const double* x_ptr = X.memptr();
        std::cout << "Forward: x[0]=" << x_ptr[0] << "\n";
+       if (X.n_cols!=n_batch){
+         std::cout << "nngpu forward incorrect x_cols " << X.n_cols << "\n";
+         return;
+       }
 
    }
 
