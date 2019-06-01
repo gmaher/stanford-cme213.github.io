@@ -114,6 +114,8 @@ public:
 	std::cout << "w1\n";
 	myPrintMat(W1_d, n_hidden, n_feats, 3, 3);
         std::cout << "w1[0,0]=" << W1(0,0) << "\n";
+	std::cout << "w1[0,1]=" << W1(0,1) << "\n";
+	std::cout << "w1[1,0]=" << W1(1,0) << "\n";
 	std::cout << "w1[1,2]=" << W1(1,2) << "\n";
 	std::cout << "w1[2,1]=" << W1(2,1) << "\n";
 //	std::cout << "b1\n";
