@@ -296,7 +296,7 @@ void print_gpu(double* __restrict__ X, int M, int N, int m, int n){
   int id = col*M+row;
 
   if (row < m && col < n){
-    printf("%u,%u: %f ",row, col, X[id]);
+    printf("%u,%u,%u: %f \n",row, col, id, X[id]);
   }
 
 }

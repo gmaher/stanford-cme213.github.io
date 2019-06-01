@@ -79,7 +79,7 @@ public:
        n_classes = y_size;
        n_batch   = batch_size;
        n_hidden  = hidden_size;
-
+	printf("feats=%u, classes=%u, batch=%u, hidden=%u",n_feats, n_classes, n_batch, n_hidden);
        cudaMalloc((void**)&Xd, sizeof(double)*x_size*batch_size);
        cudaMalloc((void**)&Yd, sizeof(double)*y_size*y_size);
 
@@ -111,19 +111,44 @@ public:
 	cudaMemcpy(W2_d, w2_ptr, sizeof(double)*n_classes*n_hidden, cudaMemcpyHostToDevice);
 	cudaMemcpy(b2_d, b2_ptr, sizeof(double)*n_classes, cudaMemcpyHostToDevice);
 
-	std::cout << "w1\n";
-	myPrintMat(W1_d, n_hidden, n_feats, 3, 3);
-        std::cout << "w1[0,0]=" << W1(0,0) << "\n";
-	std::cout << "w1[0,1]=" << W1(0,1) << "\n";
-	std::cout << "w1[1,0]=" << W1(1,0) << "\n";
-	std::cout << "w1[1,2]=" << W1(1,2) << "\n";
-	std::cout << "w1[2,1]=" << W1(2,1) << "\n";
+//	std::cout << "w1\n";
+//	myPrintMat(W1_d, n_hidden, n_feats, 3, 3);
+//      std::cout << "w1[0,0]=" << W1(0,0) << "\n";
+//	std::cout << "w1[0,1]=" << W1(0,1) << "\n";
+//	std::cout << "w1[0,2]=" << W1(0,2) << "\n";
+//
+//	std::cout << "w1[1,0]=" << W1(1,0) << "\n";
+//	std::cout << "w1[1,1]=" << W1(1,1) << "\n";
+//	std::cout << "w1[1,2]=" << W1(1,2) << "\n";
+//
+//	std::cout << "w1[2,0]=" << W1(2,0) << "\n";
+//	std::cout << "w1[2,1]=" << W1(2,1) << "\n";
+//	std::cout << "w1[2,2]=" << W1(2,2) << "\n";
 //	std::cout << "b1\n";
 //	myPrintMat(b1_d, n_hidden, 1, 3,1);
+//      std::cout << "b1[0]=" << b1(0,0) << "\n";
+//      std::cout << "b1[1]=" << b1(1,0) << "\n";
+//      std::cout << "b1[2]=" << b1(2,0) << "\n";
 //	std::cout << "w2\n";
 //	myPrintMat(W2_d, n_classes, n_hidden, 3,3);
+
+//      std::cout << "w2[0,0]=" << W2(0,0) << "\n";
+//      std::cout << "w2[0,1]=" << W2(0,1) << "\n";
+//      std::cout << "w2[0,2]=" << W2(0,2) << "\n";
+
+//      std::cout << "w2[1,0]=" << W2(1,0) << "\n";
+//      std::cout << "w2[1,1]=" << W2(1,1) << "\n";
+//      std::cout << "w2[1,2]=" << W2(1,2) << "\n";
+
+//      std::cout << "w2[2,0]=" << W2(2,0) << "\n";
+//      std::cout << "w2[2,1]=" << W2(2,1) << "\n";
+//      std::cout << "w2[2,2]=" << W2(2,2) << "\n";
+
 //	std::cout << "b2\n";
 //	myPrintMat(b2_d, n_classes, 1, 3, 1);
+//      std::cout << "b2[0]=" << b2(0,0) << "\n";
+//      std::cout << "b2[1]=" << b2(1,0) << "\n";
+//      std::cout << "b2[2]=" << b2(2,0) << "\n";
    }
 
    void forward(const arma::mat& X){
