@@ -335,6 +335,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
     int h1 = nn.W[0].n_rows;
     int w1 = nn.W[0].n_cols;
+    cudaMalloc((void**)&W1_d, h1*w1);
+    cudaMalloc((void**)&b1_d, h1);
     std::cout << "layer 1 h=" << h1 << ", w=" << w1 << "\n";
 
     double* W2_d;
@@ -342,6 +344,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
     int h2 = nn.W[1].n_rows;
     int w2 = nn.W[1].n_cols;
+    cudaMalloc((void**)&W2_d, h2*w2);
+    cudaMalloc((void**)&b2_d, h2);
     std::cout << "layer 2 h=" << h2 << ", w=" << w2 << "\n";
 
     double* yhat_d;
