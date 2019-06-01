@@ -36,16 +36,16 @@ public:
       cudaMalloc((void**)&Xd, sizeof(double)*x_size*batch_size);
       cudaMalloc((void**)&Yd, sizeof(double)*y_size*y_size);
 
-      int h1 = nn.W[0].n_rows;
-      int w1 = nn.W[0].n_cols;
+      int h1 = n_hidden;
+      int w1 = n_feats;
       cudaMalloc((void**)&W1_d, sizeof(double)*h1*w1);
       cudaMalloc((void**)&b1_d, sizeof(double)*h1);
       cudaMalloc((void**)&z1_d, sizeof(double)*h1*batch_size);
       cudaMalloc((void**)&a1_d, sizeof(double)*h1*batch_size);
       std::cout << "layer 1 h=" << h1 << ", w=" << w1 << "\n";
 
-      int h2 = nn.W[1].n_rows;
-      int w2 = nn.W[1].n_cols;
+      int h2 = n_classes;
+      int w2 = n_hidden;
       cudaMalloc((void**)&W2_d, sizeof(double)*h2*w2);
       cudaMalloc((void**)&b2_d, sizeof(double)*h2);
       cudaMalloc((void**)&z2_d, sizeof(double)*h2*batch_size);
