@@ -281,3 +281,5 @@ int mySoftmax(double* __restrict__ X, double* __restrict__ S, int M, int N) {
     softmax_gpu<<<dimGrid, dimBlock>>>(X, S, M, N);
     return 0;
 }
+
+class
