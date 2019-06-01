@@ -1,0 +1,25 @@
+MPI task 4 has started on mpi8 [total number of processors 7]
+MPI task 5 has started on mpi8 [total number of processors 7]
+MPI task 6 has started on mpi8 [total number of processors 7]
+MPI task 0 has started on mpi8 [total number of processors 7]
+Using 7 tasks to scan 40000000 numbers...
+MPI task 1 has started on mpi8 [total number of processors 7]
+MPI task 2 has started on mpi8 [total number of processors 7]
+MPI task 3 has started on mpi8 [total number of processors 7]
+Done.
+Largest prime is 39999983.
+Total number of primes found: 2433913
+Wall clock time elapsed: 3.93 seconds
+MPI task 0 has started on mpi8 [total number of processors 8]
+Using 8 tasks to scan 40000000 numbers...
+MPI task 1 has started on mpi8 [total number of processors 8]
+MPI task 2 has started on mpi8 [total number of processors 8]
+MPI task 3 has started on mpi8 [total number of processors 8]
+MPI task 4 has started on mpi8 [total number of processors 8]
+MPI task 5 has started on mpi8 [total number of processors 8]
+MPI task 6 has started on mpi8 [total number of processors 8]
+MPI task 7 has started on mpi8 [total number of processors 8]
+Done.
+Largest prime is 39999983.
+Total number of primes found: 2433913
+Wall clock time elapsed: 3.63 seconds
