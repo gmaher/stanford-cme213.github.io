@@ -72,32 +72,32 @@ public:
 
   double* yhat_d;
 
-//   NeuralNetworkGPU(int x_size, int y_size, int hidden_size, int batch_size) {
-//       n_feats   = x_size;
-//       n_classes = y_size;
-//       n_batch   = batch_size;
-//       n_hidden  = hidden_size;
-//
-//       cudaMalloc((void**)&Xd, sizeof(double)*x_size*batch_size);
-//       cudaMalloc((void**)&Yd, sizeof(double)*y_size*y_size);
-//
-//       int h1 = n_hidden;
-//       int w1 = n_feats;
-//       cudaMalloc((void**)&W1_d, sizeof(double)*h1*w1);
-//       cudaMalloc((void**)&b1_d, sizeof(double)*h1);
-//       cudaMalloc((void**)&z1_d, sizeof(double)*h1*batch_size);
-//       cudaMalloc((void**)&a1_d, sizeof(double)*h1*batch_size);
-//       std::cout << "layer 1 h=" << h1 << ", w=" << w1 << "\n";
-//
-//       int h2 = n_classes;
-//       int w2 = n_hidden;
-//       cudaMalloc((void**)&W2_d, sizeof(double)*h2*w2);
-//       cudaMalloc((void**)&b2_d, sizeof(double)*h2);
-//       cudaMalloc((void**)&z2_d, sizeof(double)*h2*batch_size);
-//       cudaMalloc((void**)&a2_d, sizeof(double)*h2*batch_size);
-//       std::cout << "layer 2 h=" << h2 << ", w=" << w2 << "\n";
-//     }
-//
+   NeuralNetworkGPU(int x_size, int y_size, int hidden_size, int batch_size) {
+       n_feats   = x_size;
+       n_classes = y_size;
+       n_batch   = batch_size;
+       n_hidden  = hidden_size;
+
+       cudaMalloc((void**)&Xd, sizeof(double)*x_size*batch_size);
+       cudaMalloc((void**)&Yd, sizeof(double)*y_size*y_size);
+
+       int h1 = n_hidden;
+       int w1 = n_feats;
+       cudaMalloc((void**)&W1_d, sizeof(double)*h1*w1);
+       cudaMalloc((void**)&b1_d, sizeof(double)*h1);
+       cudaMalloc((void**)&z1_d, sizeof(double)*h1*batch_size);
+       cudaMalloc((void**)&a1_d, sizeof(double)*h1*batch_size);
+       std::cout << "layer 1 h=" << h1 << ", w=" << w1 << "\n";
+
+       int h2 = n_classes;
+       int w2 = n_hidden;
+       cudaMalloc((void**)&W2_d, sizeof(double)*h2*w2);
+       cudaMalloc((void**)&b2_d, sizeof(double)*h2);
+       cudaMalloc((void**)&z2_d, sizeof(double)*h2*batch_size);
+       cudaMalloc((void**)&a2_d, sizeof(double)*h2*batch_size);
+       std::cout << "layer 2 h=" << h2 << ", w=" << w2 << "\n";
+     }
+
 };
 
 #endif
