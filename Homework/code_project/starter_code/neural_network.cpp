@@ -342,7 +342,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
     int h2 = nn.W[1].n_rows;
     int w2 = nn.W[1].n_cols;
-    std::cout << "layer 1 h=" << h2 << ", w=" << w2 << "\n";
+    std::cout << "layer 2 h=" << h2 << ", w=" << w2 << "\n";
 
     double* yhat_d;
 
