@@ -99,6 +99,18 @@ public:
        std::cout << "layer 2 h=" << h2 << ", w=" << w2 << "\n";
      }
 
+   void set_weights(const arma::mat& W1, const arma::mat& b1, const arma::mat& W2, const arma::mat& b2){
+	const double* w1_ptr = W1.memptr();
+	const double* b1_ptr = b1.memptr();
+	const double* w2_ptr = W2.memptr();
+	const double* b2_ptr = b2.memptr();
+
+	cudaMemcpy(W1_d, w1_ptr, sizeof(double)*n_hidden*n_feats, cudaMemcpyHostToDevice);
+	cudaMemcpy(b1_d, b1_ptr, sizeof(double)*n_hidden, cudaMemcpyHostToDevice);
+	cudaMemcpy(W2_d, w2_ptr, sizeof(double)*n_classes*n_hidden, cudaMemcpyHostToDevice);
+	cudaMemcpy(b2_d, b2_ptr, sizeof(double)*n_classes, cudaMemcpyHostToDevice);
+   }
+
    void forward(const arma::mat& X){
        const double* x_ptr = X.memptr();
        std::cout << "Forward: x[0]=" << x_ptr[0] << "\n";
@@ -106,6 +118,8 @@ public:
          std::cout << "nngpu forward incorrect x_cols " << X.n_cols << "\n";
          return;
        }
+
+       cudaMemcpy(Xd, x_ptr, sizeof(double)*n_batch*n_feats, cudaMemcpyHostToDevice);
 
    }
 
