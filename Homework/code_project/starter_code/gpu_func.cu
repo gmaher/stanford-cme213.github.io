@@ -281,3 +281,31 @@ int mySoftmax(double* __restrict__ X, double* __restrict__ S, int M, int N) {
     softmax_gpu<<<dimGrid, dimBlock>>>(X, S, M, N);
     return 0;
 }
+
+__global__
+void print_gpu(double* __restrict__ X, int M, int N, int m, int n){
+  int bx = blockIdx.x;
+  int by = blockIdx.y;
+
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+
+  int row = by*BLOCK_SIZE+ty;
+  int col = bx*BLOCK_SIZE+tx;
+
+  int id = col*M+row;
+
+  if (row < m && col < n){
+    printf("%u,%u: %f ",row, col, X[id]);
+  }
+
+}
+
+int myPrintMat(double* __restrict__ X, int M, int N, int m, int n) {
+    dim3 dimBlock(BLOCK_SIZE,BLOCK_SIZE);
+    dim3 dimGrid(N/dimBlock.x+1, M/dimBlock.y+1);
+
+    print_gpu<<<dimGrid, dimBlock>>>(X, M, N, m, n);
+    return 0;
+}
+

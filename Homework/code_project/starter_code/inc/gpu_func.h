@@ -50,6 +50,7 @@ int myHadamard(double* X, double* Y, double* H, int M, int N);
 int myTranspose(double* X, double* Xt, int M, int N);
 int myMatAdd(double* X, double* Y, double* Z, int M, int N, double alpha);
 int mySoftmax(double* X, double* S, int M, int N);
+int myPrintMat(double* X, int M, int N, int m, int n);
 
 class NeuralNetworkGPU {
 public:
@@ -109,6 +110,18 @@ public:
 	cudaMemcpy(b1_d, b1_ptr, sizeof(double)*n_hidden, cudaMemcpyHostToDevice);
 	cudaMemcpy(W2_d, w2_ptr, sizeof(double)*n_classes*n_hidden, cudaMemcpyHostToDevice);
 	cudaMemcpy(b2_d, b2_ptr, sizeof(double)*n_classes, cudaMemcpyHostToDevice);
+
+	std::cout << "w1\n";
+	myPrintMat(W1_d, n_hidden, n_feats, 3, 3);
+        std::cout << "w1[0,0]=" << W1(0,0) << "\n";
+	std::cout << "w1[1,2]=" << W1(1,2) << "\n";
+	std::cout << "w1[2,1]=" << W1(2,1) << "\n";
+//	std::cout << "b1\n";
+//	myPrintMat(b1_d, n_hidden, 1, 3,1);
+//	std::cout << "w2\n";
+//	myPrintMat(W2_d, n_classes, n_hidden, 3,3);
+//	std::cout << "b2\n";
+//	myPrintMat(b2_d, n_classes, 1, 3, 1);
    }
 
    void forward(const arma::mat& X){
