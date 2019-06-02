@@ -132,7 +132,31 @@ void backprop(NeuralNetwork& nn, const arma::mat& y, double reg,
     bpgrads.db[1] = arma::sum(diff, 1);
     arma::mat da1 = nn.W[1].t() * diff;
 
+    // printf("diff[0,0]=%f\n",diff(0,0)*N);
+    // printf("diff[1,0]=%f\n",diff(1,0)*N);
+    // printf("diff[2,0]=%f\n",diff(2,0)*N);
+    // printf("diff[0,1]=%f\n",diff(0,1)*N);
+    // printf("diff[0,2]=%f\n",diff(0,2)*N);
+
+
     arma::mat dz1 = da1 % bpcache.a[0] % (1 - bpcache.a[0]);
+
+    // printf("\nda1[0,0]=%f\n",da1(0,0));
+    // printf("da1[1,0]=%f\n",da1(1,0));
+    // printf("da1[2,0]=%f\n",da1(2,0));
+    // printf("da1[0,1]=%f\n",da1(0,1));
+    // printf("da1[0,2]=%f\n",da1(0,2));
+    // printf("da1[2,1]=%f\n",da1(2,1));
+    // printf("da1[2,2]=%f\n",da1(2,2));
+
+    // printf("\ndz1[0,0]=%f\n",dz1(0,0));
+    // printf("dz1[1,0]=%f\n",dz1(1,0));
+    // printf("dz1[2,0]=%f\n",dz1(2,0));
+    // printf("dz1[0,1]=%f\n",dz1(0,1));
+    // printf("dz1[0,2]=%f\n",dz1(0,2));
+    // printf("dz1[2,1]=%f\n",dz1(2,1));
+    // printf("dz1[2,2]=%f\n",dz1(2,2));
+
 
     bpgrads.dW[0] = dz1 * bpcache.X.t() + reg * nn.W[0];
     bpgrads.db[0] = arma::sum(dz1, 1);
@@ -424,30 +448,25 @@ void parallel_test(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       cudaMemcpy(z2, nn_gpu.z2_d, N_class*batch_size*sizeof(double), cudaMemcpyDeviceToHost);
       cudaMemcpy(a2, nn_gpu.a2_d, N_class*batch_size*sizeof(double), cudaMemcpyDeviceToHost);
 
-      auto z1_h = fcache.z[0].memptr();
-      auto a1_h = fcache.a[0].memptr();
-      auto z2_h = fcache.z[1].memptr();
-      auto a2_h = fcache.a[1].memptr();
+      arma::mat z1_d_mat = arma::mat(z1, nn.H[1], batch_size);
+      arma::mat a1_d_mat = arma::mat(a1, nn.H[1], batch_size);
+      arma::mat z2_d_mat = arma::mat(z2, N_class, batch_size);
+      arma::mat a2_d_mat = arma::mat(a2, N_class, batch_size);
 
-      double z1_err = 0;
-      double a1_err = 0;
-      double z2_err = 0;
-      double a2_err = 0;
+      printf("\nz1_d_mat[0,0]=%f\n", z1_d_mat(0,0));
+      printf("a1_d_mat[0,0]=%f\n", a1_d_mat(0,0));
+      printf("z2_d_mat[0,0]=%f\n", z2_d_mat(0,0));
+      printf("a2_d_mat[0,0]=%f\n", a2_d_mat(0,0));
 
-      for (int i = 0; i < nn.H[1]*batch_size; i++){
-        z1_err += abs(z1_h[i]-z1[i]);
-        a1_err += abs(a1_h[i]-a1[i]);
-      }
+      arma::mat z1_h = fcache.z[0];
+      arma::mat a1_h = fcache.a[0];
+      arma::mat z2_h = fcache.z[1];
+      arma::mat a2_h = fcache.a[1];
 
-      std::cout << "z1 err=" << z1_err << ", a1_err=" << a1_err << "\n";
-
-      for (int i = 0; i < N_class*batch_size; i++){
-        //printf("%u, %f---%f", i,z2_h[i], z2[i]);
-        z2_err += abs(z2_h[i]-z2[i]);
-        a2_err += abs(a2_h[i]-a2[i]);
-      }
-
-      std::cout << "z2 err=" << z1_err << ", a2_err=" << a1_err << "\n";
+      printf("\nz1_h[0,0]=%f\n", z1_h(0,0));
+      printf("a1_h[0,0]=%f\n", a1_h(0,0));
+      printf("z2_h[0,0]=%f\n", z2_h(0,0));
+      printf("a2_h[0,0]=%f\n", a2_h(0,0));
 
       //grads
       double* dw1;
@@ -464,36 +483,25 @@ void parallel_test(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       cudaMemcpy(dw2, nn_gpu.dW2, N_class*nn.H[1]*sizeof(double), cudaMemcpyDeviceToHost);
       cudaMemcpy(db2, nn_gpu.db2, N_class*batch_size*sizeof(double), cudaMemcpyDeviceToHost);
 
-      auto dw1_h = bpgrads.dW[1].memptr();
-      auto db1_h = bpgrads.db[1].memptr();
-      auto dw2_h = bpgrads.dW[0].memptr();
-      auto db2_h = bpgrads.db[0].memptr();
+      arma::mat dw1_d_mat = arma::mat(dw1, nn.H[1], M);
+      arma::mat db1_d_mat = arma::mat(db1, nn.H[1], 1);
+      arma::mat dw2_d_mat = arma::mat(dw2, N_class, nn.H[1]);
+      arma::mat db2_d_mat = arma::mat(db2, N_class, 1);
+      printf("\ndw1_d_mat[10,0]=%f\n", dw1_d_mat(10,0));
+      printf("db1_d_mat[10,0]=%f\n", db1_d_mat(10,0));
+      printf("dw2_d_mat[5,0]=%f\n", dw2_d_mat(5,0));
+      printf("db2_d_mat[5,0]=%f\n", db2_d_mat(5,0));
 
-      double dw1_err = 0;
-      double db1_err = 0;
-      double dw2_err = 0;
-      double db2_err = 0;
 
-      for (int i = 0; i < nn.H[1]*M; i++){
-        dw1_err += abs(z1_h[i]-z1[i]);
-      }
+      arma::mat dw1_h = bpgrads.dW[0];
+      arma::mat db1_h = bpgrads.db[0];
+      arma::mat dw2_h = bpgrads.dW[1];
+      arma::mat db2_h = bpgrads.db[1];
 
-      for (int i = 0; i < nn.H[1]; i++){
-        printf("%u, %f---%f", i,db1_h[i], db1[i]);
-        db1_err += abs(db1_h[i]-db1[i]);
-      }
-
-      std::cout << "dw1 err=" << dw1_err << ", db1_err=" << db1_err << "\n";
-
-      for (int i = 0; i < N_class*nn.H[1]; i++){
-        dw2_err += abs(dw2_h[i]-dw2[i]);
-      }
-
-      for (int i = 0; i < N_class; i++){
-        db2_err += abs(db2_h[i]-db2[i]);
-      }
-
-      std::cout << "dw2 err=" << dw2_err << ", db2_err=" << db2_err << "\n";
+      printf("\ndw1_h[10,0]=%f\n", dw1_h(10,0));
+      printf("db1_h[10,0]=%f\n", db1_h(10,0));
+      printf("dw2_h[5,0]=%f\n", dw2_h(5,0));
+      printf("db2_h[5,0]=%f\n", db2_h(5,0));
 
     }
 }

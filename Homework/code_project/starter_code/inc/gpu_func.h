@@ -164,24 +164,37 @@ public:
      const double* y_ptr = Y.memptr();
      cudaMemcpy(Yd, y_ptr, sizeof(double)*n_batch*n_classes, cudaMemcpyHostToDevice);
      myMatAdd(a2_d, Yd, d2, n_classes, n_batch, -1.0);
+
      myTranspose(a1_d, a1t_d, n_hidden, n_batch);
+
      double scale = 1.0/n_batch;
      cudaMemcpy(dW2, W2_d, sizeof(double)*n_classes*n_hidden, cudaMemcpyDeviceToDevice);
      myGEMM(d2,a1t_d,dW2, &scale, &reg, n_classes,n_hidden, n_batch);
      myRowSum(d2, db2, n_classes, n_batch, scale);
 
-     myTranspose(W2t_d, W2_d, n_classes, n_hidden);
+     myTranspose(W2_d, W2t_d, n_classes, n_hidden);
+
      double alpha1 = 1.0;
      double beta1 = 0.0;
-     myGEMM(W2t_d, d2, d1, &alpha1, &beta1, n_hidden, n_batch, n_classes);
+     myGEMM(W2t_d, d2, d1, &scale, &beta1, n_hidden, n_batch, n_classes);
+
+     // myPrintMat(d1, n_hidden, n_batch, 3, 3);
+
      myHadamard(a1_d,a1_d,a12_d,n_hidden, n_batch);
      myMatAdd(a1_d,a12_d,a12_d,n_hidden,n_batch,-1.0);
      myHadamard(d1,a12_d,d1,n_hidden,n_batch);
 
+     //myPrintMat(d1, n_hidden, n_batch, 3, 3);
+
      myTranspose(Xd, Xt_d, n_feats, n_batch);
      cudaMemcpy(dW1, W1_d, sizeof(double)*n_hidden*n_feats, cudaMemcpyDeviceToDevice);
-     myGEMM(d1,Xt_d,dW1,&scale,&reg,n_hidden,n_feats,n_batch);
-     myRowSum(d1, db1, n_hidden, n_batch, scale);
+     myGEMM(d1,Xt_d,dW1,&alpha1,&reg,n_hidden,n_feats,n_batch);
+     myRowSum(d1, db1, n_hidden, n_batch, alpha1);
+
+     myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr);
+     myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr);
+     myMatAdd(W2_d, dW2, W2_d, n_classes, n_hidden, -lr);
+     myMatAdd(b2_d, db2, b2_d, n_classes, n_batch, -lr);
    }
 };
 

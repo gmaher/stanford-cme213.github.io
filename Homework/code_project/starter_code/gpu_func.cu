@@ -208,7 +208,7 @@ void transpose_gpu(double* __restrict__ X, double* __restrict__ Xt, int M, int N
   int id2 = row*M+col;
 
   if (row < M && col < N){
-    Xt[id2] = Xt[id1];
+    Xt[id2] = X[id1];
   }
 
 }
