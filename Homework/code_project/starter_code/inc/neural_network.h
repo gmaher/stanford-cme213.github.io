@@ -48,5 +48,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     const int batch_size = 800, bool grad_check = false, int print_every = -1,
                     int debug = 0);
 
+void parallel_test(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+                    double learning_rate, double reg = 0.0, const int epochs = 15,
+                    const int batch_size = 800, bool grad_check = false, int print_every = -1,
+                    int debug = 0);
+
 
 #endif

@@ -250,6 +250,39 @@ int myMatAdd(double* __restrict__ X, double* __restrict__ Y, double* __restrict_
 }
 
 __global__
+void row_sum_gpu(double* __restrict__ X, double* __restrict__ S,
+  int M, int N, double alpha){
+
+  int bx = blockIdx.x;
+  int by = blockIdx.y;
+
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+
+  int row = by*BLOCK_SIZE+ty;
+  int col = bx*BLOCK_SIZE+tx;
+
+  int id = col*M+row;
+
+  if (row < M && col < N){
+    S[id] = 0;
+    for(int i = row; i < M*N; i+=M){
+      S[id] += X[i];
+    }
+    S[id] *= alpha;
+  }
+
+}
+
+int myRowSum(double* __restrict__ X, double* __restrict__ S, int M, int N, double alpha) {
+    dim3 dimBlock(BLOCK_SIZE,BLOCK_SIZE);
+    dim3 dimGrid(N/dimBlock.x+1, M/dimBlock.y+1);
+
+    row_sum_gpu<<<dimGrid, dimBlock>>>(X, S, M, N, alpha);
+    return 0;
+}
+
+__global__
 void softmax_gpu(double* __restrict__ X, double* __restrict__ S, int M, int N){
   int bx = blockIdx.x;
   int by = blockIdx.y;
@@ -308,4 +341,3 @@ int myPrintMat(double* __restrict__ X, int M, int N, int m, int n) {
     print_gpu<<<dimGrid, dimBlock>>>(X, M, N, m, n);
     return 0;
 }
-

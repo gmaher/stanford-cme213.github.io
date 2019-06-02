@@ -266,8 +266,12 @@ int main(int argc, char* argv[]) {
     double start = MPI_Wtime();
 
     /* ---- Parallel Training ---- */
-    parallel_train(nn, x_train, y_train, learning_rate, reg, num_epochs, batch_size,
+    // parallel_train(nn, x_train, y_train, learning_rate, reg, num_epochs, batch_size,
+    //                false, print_every, debug);
+
+    parallel_test(nn, x_train, y_train, learning_rate, reg, num_epochs, batch_size,
                    false, print_every, debug);
+
 
     double end = MPI_Wtime();
 

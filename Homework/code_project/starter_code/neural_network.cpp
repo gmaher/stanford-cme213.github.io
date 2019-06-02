@@ -5,7 +5,7 @@
 #include "gpu_func.h"
 #include "mpi.h"
 #include "iomanip"
-
+#include <cmath>
 #define MPI_SAFE_CALL( call ) do {                               \
     int err = call;                                              \
     if (err != MPI_SUCCESS) {                                    \
@@ -373,4 +373,127 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     }
 
     error_file.close();
+}
+
+void parallel_test(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+                    double learning_rate, double reg,
+                    const int epochs, const int batch_size, bool grad_check, int print_every,
+                    int debug) {
+
+    int rank, num_procs;
+    MPI_SAFE_CALL(MPI_Comm_size(MPI_COMM_WORLD, &num_procs));
+    MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
+
+    int N = (rank == 0)?X.n_cols:0;
+    int M = X.n_rows;
+    int N_class = y.n_rows;
+    MPI_SAFE_CALL(MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD));
+
+    std::ofstream error_file;
+    error_file.open("Outputs/CpuGpuDiff.txt");
+    int print_flag = 0;
+
+    if (rank == 0){
+      std::cout << "num procs=" << num_procs << "\n";
+      std::cout << "num cols X=" << N << "\n";
+      std::cout << "num rows X=" << M << "\n";
+      std::cout << "num classes Y=" << N_class << "\n";
+      NeuralNetworkGPU nn_gpu(M,N_class,nn.H[1],batch_size);
+      nn_gpu.set_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
+      nn_gpu.forward(X.cols(0,batch_size-1));
+      nn_gpu.backward(X.cols(0,batch_size-1), y.cols(0,batch_size-1),
+      learning_rate, reg);
+
+      struct cache fcache;
+      feedforward(nn, X.cols(0,batch_size-1), fcache);
+
+      struct grads bpgrads;
+      backprop(nn, y.cols(0,batch_size-1), reg, fcache, bpgrads);
+
+      double* z1;
+      double* a1;
+      double* z2;
+      double* a2;
+      z1  = (double*)malloc(nn.H[1]*batch_size*sizeof(double));
+      a1  = (double*)malloc(nn.H[1]*batch_size*sizeof(double));
+      z2  = (double*)malloc(N_class*batch_size*sizeof(double));
+      a2  = (double*)malloc(N_class*batch_size*sizeof(double));
+
+      cudaMemcpy(z1, nn_gpu.z1_d, nn.H[1]*batch_size*sizeof(double), cudaMemcpyDeviceToHost);
+      cudaMemcpy(a1, nn_gpu.a1_d, nn.H[1]*batch_size*sizeof(double), cudaMemcpyDeviceToHost);
+      cudaMemcpy(z2, nn_gpu.z2_d, N_class*batch_size*sizeof(double), cudaMemcpyDeviceToHost);
+      cudaMemcpy(a2, nn_gpu.a2_d, N_class*batch_size*sizeof(double), cudaMemcpyDeviceToHost);
+
+      auto z1_h = fcache.z[0].memptr();
+      auto a1_h = fcache.a[0].memptr();
+      auto z2_h = fcache.z[1].memptr();
+      auto a2_h = fcache.a[1].memptr();
+
+      double z1_err = 0;
+      double a1_err = 0;
+      double z2_err = 0;
+      double a2_err = 0;
+
+      for (int i = 0; i < nn.H[1]*batch_size; i++){
+        z1_err += abs(z1_h[i]-z1[i]);
+        a1_err += abs(a1_h[i]-a1[i]);
+      }
+
+      std::cout << "z1 err=" << z1_err << ", a1_err=" << a1_err << "\n";
+
+      for (int i = 0; i < N_class*batch_size; i++){
+        //printf("%u, %f---%f", i,z2_h[i], z2[i]);
+        z2_err += abs(z2_h[i]-z2[i]);
+        a2_err += abs(a2_h[i]-a2[i]);
+      }
+
+      std::cout << "z2 err=" << z1_err << ", a2_err=" << a1_err << "\n";
+
+      //grads
+      double* dw1;
+      double* db1;
+      double* dw2;
+      double* db2;
+      dw1  = (double*)malloc(nn.H[1]*M*sizeof(double));
+      db1  = (double*)malloc(nn.H[1]*batch_size*sizeof(double));
+      dw2  = (double*)malloc(N_class*nn.H[1]*sizeof(double));
+      db2  = (double*)malloc(N_class*batch_size*sizeof(double));
+
+      cudaMemcpy(dw1, nn_gpu.dW1, nn.H[1]*M*sizeof(double), cudaMemcpyDeviceToHost);
+      cudaMemcpy(db1, nn_gpu.db1, nn.H[1]*batch_size*sizeof(double), cudaMemcpyDeviceToHost);
+      cudaMemcpy(dw2, nn_gpu.dW2, N_class*nn.H[1]*sizeof(double), cudaMemcpyDeviceToHost);
+      cudaMemcpy(db2, nn_gpu.db2, N_class*batch_size*sizeof(double), cudaMemcpyDeviceToHost);
+
+      auto dw1_h = bpgrads.dW[1].memptr();
+      auto db1_h = bpgrads.db[1].memptr();
+      auto dw2_h = bpgrads.dW[0].memptr();
+      auto db2_h = bpgrads.db[0].memptr();
+
+      double dw1_err = 0;
+      double db1_err = 0;
+      double dw2_err = 0;
+      double db2_err = 0;
+
+      for (int i = 0; i < nn.H[1]*M; i++){
+        dw1_err += abs(z1_h[i]-z1[i]);
+      }
+
+      for (int i = 0; i < nn.H[1]; i++){
+        printf("%u, %f---%f", i,db1_h[i], db1[i]);
+        db1_err += abs(db1_h[i]-db1[i]);
+      }
+
+      std::cout << "dw1 err=" << dw1_err << ", db1_err=" << db1_err << "\n";
+
+      for (int i = 0; i < N_class*nn.H[1]; i++){
+        dw2_err += abs(dw2_h[i]-dw2[i]);
+      }
+
+      for (int i = 0; i < N_class; i++){
+        db2_err += abs(db2_h[i]-db2[i]);
+      }
+
+      std::cout << "dw2 err=" << dw2_err << ", db2_err=" << db2_err << "\n";
+
+    }
 }
