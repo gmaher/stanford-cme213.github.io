@@ -86,7 +86,7 @@ public:
        int h1 = n_hidden;
        int w1 = n_feats;
        cudaMalloc((void**)&W1_d, sizeof(double)*h1*w1);
-       cudaMalloc((void**)&b1_d, sizeof(double)*h1);
+       cudaMalloc((void**)&b1_d, sizeof(double)*h1*batch_size);
        cudaMalloc((void**)&z1_d, sizeof(double)*h1*batch_size);
        cudaMalloc((void**)&a1_d, sizeof(double)*h1*batch_size);
        std::cout << "layer 1 h=" << h1 << ", w=" << w1 << "\n";
@@ -94,7 +94,7 @@ public:
        int h2 = n_classes;
        int w2 = n_hidden;
        cudaMalloc((void**)&W2_d, sizeof(double)*h2*w2);
-       cudaMalloc((void**)&b2_d, sizeof(double)*h2);
+       cudaMalloc((void**)&b2_d, sizeof(double)*h2*batch_size);
        cudaMalloc((void**)&z2_d, sizeof(double)*h2*batch_size);
        cudaMalloc((void**)&a2_d, sizeof(double)*h2*batch_size);
        std::cout << "layer 2 h=" << h2 << ", w=" << w2 << "\n";
@@ -102,14 +102,16 @@ public:
 
    void set_weights(const arma::mat& W1, const arma::mat& b1, const arma::mat& W2, const arma::mat& b2){
 	const double* w1_ptr = W1.memptr();
-	const double* b1_ptr = b1.memptr();
+	arma::mat b1_rep = arma::repmat(b1, 1, n_batch);
+	const double* b1_ptr = b1_rep.memptr();
 	const double* w2_ptr = W2.memptr();
-	const double* b2_ptr = b2.memptr();
+	arma::mat b2_rep = arma::repmat(b2,1,n_batch);
+	const double* b2_ptr = b2_rep.memptr();
 
 	cudaMemcpy(W1_d, w1_ptr, sizeof(double)*n_hidden*n_feats, cudaMemcpyHostToDevice);
-	cudaMemcpy(b1_d, b1_ptr, sizeof(double)*n_hidden, cudaMemcpyHostToDevice);
+	cudaMemcpy(b1_d, b1_ptr, sizeof(double)*n_hidden*n_batch, cudaMemcpyHostToDevice);
 	cudaMemcpy(W2_d, w2_ptr, sizeof(double)*n_classes*n_hidden, cudaMemcpyHostToDevice);
-	cudaMemcpy(b2_d, b2_ptr, sizeof(double)*n_classes, cudaMemcpyHostToDevice);
+	cudaMemcpy(b2_d, b2_ptr, sizeof(double)*n_classes*n_batch, cudaMemcpyHostToDevice);
 
 //	std::cout << "w1\n";
 //	myPrintMat(W1_d, n_hidden, n_feats, 3, 3);
@@ -125,7 +127,7 @@ public:
 //	std::cout << "w1[2,1]=" << W1(2,1) << "\n";
 //	std::cout << "w1[2,2]=" << W1(2,2) << "\n";
 //	std::cout << "b1\n";
-//	myPrintMat(b1_d, n_hidden, 1, 3,1);
+//	myPrintMat(b1_d, n_hidden, n_batch, 3,3);
 //      std::cout << "b1[0]=" << b1(0,0) << "\n";
 //      std::cout << "b1[1]=" << b1(1,0) << "\n";
 //      std::cout << "b1[2]=" << b1(2,0) << "\n";
@@ -145,7 +147,7 @@ public:
 //      std::cout << "w2[2,2]=" << W2(2,2) << "\n";
 
 //	std::cout << "b2\n";
-//	myPrintMat(b2_d, n_classes, 1, 3, 1);
+//	myPrintMat(b2_d, n_classes, n_batch, 3, 3);
 //      std::cout << "b2[0]=" << b2(0,0) << "\n";
 //      std::cout << "b2[1]=" << b2(1,0) << "\n";
 //      std::cout << "b2[2]=" << b2(2,0) << "\n";
@@ -161,7 +163,12 @@ public:
 
        cudaMemcpy(Xd, x_ptr, sizeof(double)*n_batch*n_feats, cudaMemcpyHostToDevice);
 
-//      myPrintMat(Xd, n_feats, n_batch, 3,3);
+       double alpha1 = 1.0;
+       double beta1 = 1.0;
+       myGEMM(W1_d, Xd, z1_d, &alpha1, &beta1, n_hidden, n_batch, n_feats);
+       myMatAdd(z1_d, b1_d, z1_d, n_hidden, n_batch, 1.0);
+
+      myPrintMat(z1_d, n_hidden, n_batch, 3,3);
 
 //      std::cout << "x[0,0]=" << X(0,0) << "\n";
 //      std::cout << "x[0,1]=" << X(0,1) << "\n";

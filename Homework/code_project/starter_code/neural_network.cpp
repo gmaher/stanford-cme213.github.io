@@ -310,6 +310,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       NeuralNetworkGPU nn_gpu(M,N_class,nn.H[1],batch_size);
       nn_gpu.set_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
       nn_gpu.forward(X.cols(0,batch_size-1));
+
+      arma::mat z1 = nn.W[0] * X.cols(0,batch_size-1) + arma::repmat(nn.b[0], 1, batch_size);
+
+      std::cout << "z1[50,0]=" << z1(50,0) << "\n";
+
+
     }
     std::cout << "hello from rank " << rank << "\n";
     checkCudaErrors(cudaSetDevice(rank));
