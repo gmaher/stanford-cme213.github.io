@@ -240,23 +240,23 @@ int main(int argc, char* argv[]) {
     /* Run the sequential code if the serial flag is set */
     NeuralNetwork seq_nn(H);
 
-    // if((rank == 0) && (run_seq)) {
-    //     std::cout << "Start Sequential Training" << std::endl;
-    //
-    //     double start = MPI_Wtime();
-    //     train(seq_nn, x_train, y_train, learning_rate, reg, num_epochs, batch_size,
-    //           false, print_every, debug);
-    //     double end = MPI_Wtime();
-    //
-    //     std::cout << "Time for Sequential Training: " << end - start << " seconds" <<
-    //               std::endl;
-    //
-    //     arma::rowvec label_dev_pred;
-    //     predict(seq_nn, x_dev, label_dev_pred);
-    //     double prec = precision(label_dev_pred, label_dev);
-    //     std::cout << "Precision on validation set for sequential training = " << prec <<
-    //               std::endl;
-    // }
+    if((rank == 0) && (run_seq)) {
+        std::cout << "Start Sequential Training" << std::endl;
+
+        double start = MPI_Wtime();
+        train(seq_nn, x_train, y_train, learning_rate, reg, num_epochs, batch_size,
+              false, print_every, debug);
+        double end = MPI_Wtime();
+
+        std::cout << "Time for Sequential Training: " << end - start << " seconds" <<
+                  std::endl;
+
+        arma::rowvec label_dev_pred;
+        predict(seq_nn, x_dev, label_dev_pred);
+        double prec = precision(label_dev_pred, label_dev);
+        std::cout << "Precision on validation set for sequential training = " << prec <<
+                  std::endl;
+    }
 
     /* Train the Neural Network in Parallel*/
     if(rank == 0) {
@@ -266,11 +266,11 @@ int main(int argc, char* argv[]) {
     double start = MPI_Wtime();
 
     /* ---- Parallel Training ---- */
-    // parallel_train(nn, x_train, y_train, learning_rate, reg, num_epochs, batch_size,
-    //                false, print_every, debug);
-
-    parallel_test(nn, x_train, y_train, learning_rate, reg, num_epochs, batch_size,
+    parallel_train(nn, x_train, y_train, learning_rate, reg, num_epochs, batch_size,
                    false, print_every, debug);
+
+    // parallel_test(nn, x_train, y_train, learning_rate, reg, num_epochs, batch_size,
+    //                false, print_every, debug);
 
 
     double end = MPI_Wtime();

@@ -138,9 +138,20 @@ public:
     	cudaMemcpy(b2_d, b2_ptr, sizeof(double)*n_classes*n_batch, cudaMemcpyHostToDevice);
    }
 
+   void get_weights(arma::mat& W1, arma::mat& b1, arma::mat& W2, arma::mat& b2){
+    	double* w1_ptr = W1.memptr();
+      double* b1_ptr = b1.memptr();
+    	double* w2_ptr = W2.memptr();
+    	double* b2_ptr = b2.memptr();
+
+    	cudaMemcpy(w1_ptr, W1_d, sizeof(double)*n_hidden*n_feats, cudaMemcpyDeviceToHost);
+    	cudaMemcpy(b1_ptr, b1_d,  sizeof(double)*n_hidden, cudaMemcpyDeviceToHost);
+    	cudaMemcpy(w2_ptr, W2_d,  sizeof(double)*n_classes*n_hidden, cudaMemcpyDeviceToHost);
+    	cudaMemcpy(b2_ptr, b2_d, sizeof(double)*n_classes, cudaMemcpyDeviceToHost);
+   }
+
    void forward(const arma::mat& X){
        const double* x_ptr = X.memptr();
-       std::cout << "Forward: x[0]=" << x_ptr[0] << "\n";
        if (X.n_cols!=n_batch){
          std::cout << "nngpu forward incorrect x_cols " << X.n_cols << "\n";
          return;
@@ -173,12 +184,16 @@ public:
      myRowSum(d2, db2, n_classes, n_batch, scale);
 
      myTranspose(W2_d, W2t_d, n_classes, n_hidden);
+     //myPrintMat(W2_d, n_classes, n_hidden, 3, 3);
+     //myPrintMat(W2t_d, n_hidden, n_classes, 3, 3);
+
 
      double alpha1 = 1.0;
      double beta1 = 0.0;
-     myGEMM(W2t_d, d2, d1, &scale, &beta1, n_hidden, n_batch, n_classes);
+     myGEMM(W2t_d, d2, d1, &alpha1, &beta1, n_hidden, n_batch, n_classes);
+     //myPrintMat(d2, n_classes, n_batch, 3, 3);
 
-     // myPrintMat(d1, n_hidden, n_batch, 3, 3);
+     //myPrintMat(d1, n_hidden, n_batch, 3, 3);
 
      myHadamard(a1_d,a1_d,a12_d,n_hidden, n_batch);
      myMatAdd(a1_d,a12_d,a12_d,n_hidden,n_batch,-1.0);
@@ -188,8 +203,8 @@ public:
 
      myTranspose(Xd, Xt_d, n_feats, n_batch);
      cudaMemcpy(dW1, W1_d, sizeof(double)*n_hidden*n_feats, cudaMemcpyDeviceToDevice);
-     myGEMM(d1,Xt_d,dW1,&alpha1,&reg,n_hidden,n_feats,n_batch);
-     myRowSum(d1, db1, n_hidden, n_batch, alpha1);
+     myGEMM(d1,Xt_d,dW1,&scale,&reg,n_hidden,n_feats,n_batch);
+     myRowSum(d1, db1, n_hidden, n_batch, scale);
 
      myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr);
      myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr);

@@ -205,7 +205,7 @@ void transpose_gpu(double* __restrict__ X, double* __restrict__ Xt, int M, int N
   int col = bx*BLOCK_SIZE+tx;
 
   int id1 = col*M+row;
-  int id2 = row*M+col;
+  int id2 = row*N+col;
 
   if (row < M && col < N){
     Xt[id2] = X[id1];

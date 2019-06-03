@@ -141,21 +141,21 @@ void backprop(NeuralNetwork& nn, const arma::mat& y, double reg,
 
     arma::mat dz1 = da1 % bpcache.a[0] % (1 - bpcache.a[0]);
 
-    // printf("\nda1[0,0]=%f\n",da1(0,0));
-    // printf("da1[1,0]=%f\n",da1(1,0));
-    // printf("da1[2,0]=%f\n",da1(2,0));
-    // printf("da1[0,1]=%f\n",da1(0,1));
-    // printf("da1[0,2]=%f\n",da1(0,2));
-    // printf("da1[2,1]=%f\n",da1(2,1));
-    // printf("da1[2,2]=%f\n",da1(2,2));
+    // printf("\nda1[0,0]=%f\n",da1(0,0)*N);
+    // printf("da1[1,0]=%f\n",da1(1,0)*N);
+    // printf("da1[2,0]=%f\n",da1(2,0)*N);
+    // printf("da1[0,1]=%f\n",da1(0,1)*N);
+    // printf("da1[0,2]=%f\n",da1(0,2)*N);
+    // printf("da1[2,1]=%f\n",da1(2,1)*N);
+    // printf("da1[2,2]=%f\n",da1(2,2)*N);
 
-    // printf("\ndz1[0,0]=%f\n",dz1(0,0));
-    // printf("dz1[1,0]=%f\n",dz1(1,0));
-    // printf("dz1[2,0]=%f\n",dz1(2,0));
-    // printf("dz1[0,1]=%f\n",dz1(0,1));
-    // printf("dz1[0,2]=%f\n",dz1(0,2));
-    // printf("dz1[2,1]=%f\n",dz1(2,1));
-    // printf("dz1[2,2]=%f\n",dz1(2,2));
+    // printf("\ndz1[0,0]=%f\n",dz1(0,0)*N);
+    // printf("dz1[1,0]=%f\n",dz1(1,0)*N);
+    // printf("dz1[2,0]=%f\n",dz1(2,0)*N);
+    // printf("dz1[0,1]=%f\n",dz1(0,1)*N);
+    // printf("dz1[0,2]=%f\n",dz1(0,2)*N);
+    // printf("dz1[2,1]=%f\n",dz1(2,1)*N);
+    // printf("dz1[2,2]=%f\n",dz1(2,2)*N);
 
 
     bpgrads.dW[0] = dz1 * bpcache.X.t() + reg * nn.W[0];
@@ -326,20 +326,15 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
 
+    NeuralNetworkGPU nn_gpu(M,N_class,nn.H[1],batch_size);
+
     if (rank == 0){
       std::cout << "num procs=" << num_procs << "\n";
       std::cout << "num cols X=" << N << "\n";
       std::cout << "num rows X=" << M << "\n";
       std::cout << "num classes Y=" << N_class << "\n";
-      NeuralNetworkGPU nn_gpu(M,N_class,nn.H[1],batch_size);
+
       nn_gpu.set_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
-      nn_gpu.forward(X.cols(0,batch_size-1));
-
-      arma::mat z1 = nn.W[0] * X.cols(0,batch_size-1) + arma::repmat(nn.b[0], 1, batch_size);
-
-      std::cout << "z1[50,0]=" << z1(50,0) << "\n";
-
-
     }
     std::cout << "hello from rank " << rank << "\n";
     checkCudaErrors(cudaSetDevice(rank));
@@ -352,13 +347,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     /* iter is a variable used to manage debugging. It increments in the inner loop
        and therefore goes from 0 to epochs*num_batches */
 
-    //****************GPU WEIGHT INIT*************************
-    int proc_batch = batch_size/num_procs;
-    int x_size     = sizeof(double)*proc_batch*M;
-    int y_size     = sizeof(double)*proc_batch*N_class;
-
-
-    //********************************************************
     int iter = 0;
 
     for(int epoch = 0; epoch < epochs; ++epoch) {
@@ -377,6 +365,14 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                int last_col = std::min((batch + 1)*batch_size-1, N-1);
                arma::mat X_batch = X.cols(batch * batch_size, last_col);
                arma::mat y_batch = y.cols(batch * batch_size, last_col);
+
+               if (X_batch.n_cols != batch_size){
+                 std::cout << "too small x batch continuing\n";
+                 continue;
+               }
+
+               nn_gpu.forward(X_batch);
+               nn_gpu.backward(X_batch, y_batch, learning_rate, reg);
              }
 
 
@@ -388,12 +384,18 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             /* Following debug routine assumes that you have already updated the arma
                matrices in the NeuralNetwork nn.  */
-            if(debug && rank == 0 && print_flag) {
-                write_diff_gpu_cpu(nn, iter, error_file);
-            }
+            // if(debug && rank == 0 && print_flag) {
+            //     write_diff_gpu_cpu(nn, iter, error_file);
+            // }
 
             iter++;
         }
+    }
+
+    //copy weights
+    if (rank == 0){
+      std::cout << "writing gpu weights to cpu\n";
+      nn_gpu.get_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
     }
 
     error_file.close();
@@ -487,7 +489,7 @@ void parallel_test(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       arma::mat db1_d_mat = arma::mat(db1, nn.H[1], 1);
       arma::mat dw2_d_mat = arma::mat(dw2, N_class, nn.H[1]);
       arma::mat db2_d_mat = arma::mat(db2, N_class, 1);
-      printf("\ndw1_d_mat[10,0]=%f\n", dw1_d_mat(10,0));
+      printf("\ndw1_d_mat[10,300]=%f\n", dw1_d_mat(10,300));
       printf("db1_d_mat[10,0]=%f\n", db1_d_mat(10,0));
       printf("dw2_d_mat[5,0]=%f\n", dw2_d_mat(5,0));
       printf("db2_d_mat[5,0]=%f\n", db2_d_mat(5,0));
@@ -498,7 +500,7 @@ void parallel_test(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       arma::mat dw2_h = bpgrads.dW[1];
       arma::mat db2_h = bpgrads.db[1];
 
-      printf("\ndw1_h[10,0]=%f\n", dw1_h(10,0));
+      printf("\ndw1_h[10,300]=%f\n", dw1_h(10,300));
       printf("db1_h[10,0]=%f\n", db1_h(10,0));
       printf("dw2_h[5,0]=%f\n", dw2_h(5,0));
       printf("db2_h[5,0]=%f\n", db2_h(5,0));
