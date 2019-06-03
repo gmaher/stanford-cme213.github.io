@@ -1,30 +1,4 @@
 Mismatches for W[0]
 Mismatches for b[0]
 Mismatches for W[1]
-Mismatch at pos (0, 2 )seq: 0.108446 par: 0.108591
-Mismatch at pos (0, 5 )seq: 0.128794 par: 0.128904
-Mismatch at pos (0, 7 )seq: 0.120075 par: 0.120189
-Mismatch at pos (0, 9 )seq: 0.1174 par: 0.117524
-Mismatch at pos (0, 12 )seq: 0.111695 par: 0.111834
-Mismatch at pos (0, 13 )seq: 0.109786 par: 0.109912
-Mismatch at pos (0, 18 )seq: 0.0952871 par: 0.0954722
-Mismatch at pos (0, 28 )seq: 0.107136 par: 0.107289
-Mismatch at pos (0, 41 )seq: 0.114313 par: 0.11445
-Mismatch at pos (0, 43 )seq: 0.108448 par: 0.10859
-Mismatch at pos (0, 46 )seq: 0.11335 par: 0.113459
-Mismatch at pos (0, 49 )seq: 0.114198 par: 0.114352
-Mismatch at pos (0, 52 )seq: 0.115459 par: 0.115573
-Mismatch at pos (0, 53 )seq: 0.117121 par: 0.117241
-Mismatch at pos (0, 55 )seq: 0.114397 par: 0.114514
-Mismatch at pos (0, 61 )seq: 0.107358 par: 0.107519
-Mismatch at pos (0, 65 )seq: 0.118155 par: 0.118294
-Mismatch at pos (0, 68 )seq: 0.108002 par: 0.10815
-Mismatch at pos (0, 72 )seq: 0.109096 par: 0.109258
-Mismatch at pos (0, 73 )seq: 0.107905 par: 0.108057
-Mismatch at pos (0, 76 )seq: 0.116985 par: 0.117113
-Mismatch at pos (0, 87 )seq: 0.111171 par: 0.111298
-Mismatch at pos (0, 90 )seq: 0.120442 par: 0.120546
-There were 23 total locations where there was a difference between the seq and par
 Mismatches for b[1]
-Mismatch at pos (0, 0 )seq: 0.254507 par: 0.255013
-There were 1 total locations where there was a difference between the seq and par

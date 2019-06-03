@@ -138,6 +138,10 @@ void backprop(NeuralNetwork& nn, const arma::mat& y, double reg,
     // printf("diff[0,1]=%f\n",diff(0,1)*N);
     // printf("diff[0,2]=%f\n",diff(0,2)*N);
 
+    // for (int i = 0; i < 10; i++){
+    //   printf("diff[0,%u]=%f\n",i,diff(0,i)*N);
+    // }
+
 
     arma::mat dz1 = da1 % bpcache.a[0] % (1 - bpcache.a[0]);
 
@@ -251,7 +255,7 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     for(int epoch = 0 ; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
 
-        for(int batch = 0; batch < num_batches; ++batch) {
+        for(int batch = 0; batch < num_batches-1; ++batch) {
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
             arma::mat X_batch = X.cols(batch * batch_size, last_col);
             arma::mat y_batch = y.cols(batch * batch_size, last_col);
@@ -352,7 +356,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
 
-        for(int batch = 0; batch < num_batches; ++batch) {
+        for(int batch = 0; batch < num_batches-1; ++batch) {
             /*
              * Possible Implementation:
              * 1. subdivide input batch of images and `MPI_scatter()' to each MPI node
@@ -367,8 +371,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                arma::mat y_batch = y.cols(batch * batch_size, last_col);
 
                if (X_batch.n_cols != batch_size){
-                 std::cout << "too small x batch continuing\n";
-                 continue;
+                 X_batch = X.cols(last_col-batch_size, last_col);
+                 y_batch = y.cols(last_col-batch_size, last_col);
+                 std::cout << "too small x batch " << X_batch.n_cols << "\n";
                }
 
                nn_gpu.forward(X_batch);
@@ -384,9 +389,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             /* Following debug routine assumes that you have already updated the arma
                matrices in the NeuralNetwork nn.  */
-            // if(debug && rank == 0 && print_flag) {
-            //     write_diff_gpu_cpu(nn, iter, error_file);
-            // }
+            if(debug && rank == 0 && print_flag) {
+                nn_gpu.get_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
+                write_diff_gpu_cpu(nn, iter, error_file);
+            }
 
             iter++;
         }
@@ -491,8 +497,8 @@ void parallel_test(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       arma::mat db2_d_mat = arma::mat(db2, N_class, 1);
       printf("\ndw1_d_mat[10,300]=%f\n", dw1_d_mat(10,300));
       printf("db1_d_mat[10,0]=%f\n", db1_d_mat(10,0));
-      printf("dw2_d_mat[5,0]=%f\n", dw2_d_mat(5,0));
-      printf("db2_d_mat[5,0]=%f\n", db2_d_mat(5,0));
+      printf("dw2_d_mat[0,50]=%f\n", dw2_d_mat(0,50));
+      printf("db2_d_mat[0,0]=%f\n", db2_d_mat(0,0));
 
 
       arma::mat dw1_h = bpgrads.dW[0];
@@ -502,8 +508,8 @@ void parallel_test(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
       printf("\ndw1_h[10,300]=%f\n", dw1_h(10,300));
       printf("db1_h[10,0]=%f\n", db1_h(10,0));
-      printf("dw2_h[5,0]=%f\n", dw2_h(5,0));
-      printf("db2_h[5,0]=%f\n", db2_h(5,0));
+      printf("dw2_h[0,50]=%f\n", dw2_h(0,50));
+      printf("db2_h[0,0]=%f\n", db2_h(0,0));
 
     }
 }

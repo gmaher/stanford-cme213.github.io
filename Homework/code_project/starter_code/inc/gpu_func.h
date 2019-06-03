@@ -191,7 +191,7 @@ public:
      double alpha1 = 1.0;
      double beta1 = 0.0;
      myGEMM(W2t_d, d2, d1, &alpha1, &beta1, n_hidden, n_batch, n_classes);
-     //myPrintMat(d2, n_classes, n_batch, 3, 3);
+     //myPrintMat(d2, n_classes, n_batch, 1, 10);
 
      //myPrintMat(d1, n_hidden, n_batch, 3, 3);
 
