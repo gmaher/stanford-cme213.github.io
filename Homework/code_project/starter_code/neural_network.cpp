@@ -351,6 +351,16 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     /* iter is a variable used to manage debugging. It increments in the inner loop
        and therefore goes from 0 to epochs*num_batches */
 
+    /*
+    1* broadcast x,y data to all procs
+    2* adjust loop based on rank
+    3* compute gradients
+    4* all reduce gradients
+    5* rank 0 compute new parameters
+    6* broadcast new parameters
+    7* set new parameters
+    */
+
     int iter = 0;
 
     for(int epoch = 0; epoch < epochs; ++epoch) {
