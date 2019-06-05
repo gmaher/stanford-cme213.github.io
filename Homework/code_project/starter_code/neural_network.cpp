@@ -387,14 +387,14 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     arma::mat X_loc;
     arma::mat y_loc;
 
-    // if (rank == 0){
-    //   X_loc = X;
-    //   y_loc = y;
-    //
-    // }else {
-    //   X_loc = arma::mat(X_data_ptr_loc, M, N);
-    //   y_loc = arma::mat(Y_data_ptr_loc, M_class, N);
-    // }
+    if (rank == 0){
+      X_loc = X;
+      y_loc = y;
+
+    }else {
+      X_loc = arma::mat(X_data_ptr_loc, M, N);
+      y_loc = arma::mat(Y_data_ptr_loc, M_class, N);
+    }
     //
     // for(int proc=0; proc<num_procs; proc++) {
     //   if(rank == proc) {
