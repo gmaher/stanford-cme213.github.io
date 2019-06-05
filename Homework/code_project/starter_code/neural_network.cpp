@@ -441,13 +441,13 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             nn_gpu.backward(X_batch, y_batch, reg);
             nn_gpu.gradientToHost();
 
-            MPI_Allreduce(nn.dW1_h, nn.dW1_h, nn.n_hidden*nn.n_feats, MPI_FLOAT,
+            MPI_Allreduce(nn_gpu.dW1_h, nn_gpu.dW1_h, nn_gpu.n_hidden*nn_gpu.n_feats, MPI_FLOAT,
               MPI_SUM, MPI_COMM_WORLD);
-            MPI_Allreduce(nn.db1_h, nn.db1_h, nn.n_hidden*nn.n_batch, MPI_FLOAT,
+            MPI_Allreduce(nn_gpu.db1_h, nn_gpu.db1_h, nn_gpu.n_hidden*nn_gpu.n_batch, MPI_FLOAT,
               MPI_SUM, MPI_COMM_WORLD);
-            MPI_Allreduce(nn.dW2_h, nn.dW2_h, nn.n_class*nn.n_hidden, MPI_FLOAT,
+            MPI_Allreduce(nn_gpu.dW2_h, nn_gpu.dW2_h, nn_gpu.n_class*nn_gpu.n_hidden, MPI_FLOAT,
               MPI_SUM, MPI_COMM_WORLD);
-            MPI_Allreduce(nn.db2_h, nn.db2_h, nn.n_class*nn.n_batch, MPI_FLOAT,
+            MPI_Allreduce(nn_gpu.db2_h, nn_gpu.db2_h, nn_gpu.n_class*nn_gpu.n_batch, MPI_FLOAT,
               MPI_SUM, MPI_COMM_WORLD);
 
             nn_gpu.gradientStep(learning_rate);
