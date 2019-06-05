@@ -333,7 +333,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
 
-    int proc_batch_size = batch_size/num_procs;
+//    int proc_batch_size = batch_size/num_procs;
+    int proc_batch_size = batch_size;
     NeuralNetworkGPU nn_gpu(M,M_class,nn.H[1],proc_batch_size, num_procs, rank);
 
     if (rank == 0){
@@ -432,11 +433,15 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              */
 
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
-            arma::mat X_batch = X_loc.cols(batch * batch_size+(num_procs-rank-1)*proc_batch_size,
-                batch * batch_size+(num_procs-rank)*proc_batch_size-1);
+            // arma::mat X_batch = X_loc.cols(batch * batch_size+(num_procs-rank-1)*proc_batch_size,
+            //     batch * batch_size+(num_procs-rank)*proc_batch_size-1);
+            //
+            // arma::mat y_batch = y_loc.cols(batch * batch_size+(num_procs-rank-1)*proc_batch_size,
+            //    batch * batch_size+(num_procs-rank)*proc_batch_size-1);
 
-            arma::mat y_batch = y_loc.cols(batch * batch_size+(num_procs-rank-1)*proc_batch_size,
-               batch * batch_size+(num_procs-rank)*proc_batch_size-1);
+             arma::mat X_batch = X.cols(batch * batch_size, last_col);
+             arma::mat y_batch = y.cols(batch * batch_size, last_col);
+
 
             nn_gpu.forward(X_batch);
             nn_gpu.backward(X_batch, y_batch, reg);
