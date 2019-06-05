@@ -241,18 +241,18 @@ int rank;
   }
 
   void gradientToDevice(){
-    cudaMemcpy(dW1, dW1_h_2, sizeof(double)*n_hidden*n_feats, cudaMemcpyHostToDevice);
-    cudaMemcpy(db1, db1_h_2, sizeof(double)*n_hidden*n_batch, cudaMemcpyHostToDevice);
-    cudaMemcpy(dW2, dW2_h_2, sizeof(double)*n_classes*n_hidden, cudaMemcpyHostToDevice);
-    cudaMemcpy(db2, db2_h_2, sizeof(double)*n_classes*n_batch, cudaMemcpyHostToDevice);
+    // cudaMemcpy(dW1, dW1_h_2, sizeof(double)*n_hidden*n_feats, cudaMemcpyHostToDevice);
+    // cudaMemcpy(db1, db1_h_2, sizeof(double)*n_hidden*n_batch, cudaMemcpyHostToDevice);
+    // cudaMemcpy(dW2, dW2_h_2, sizeof(double)*n_classes*n_hidden, cudaMemcpyHostToDevice);
+    // cudaMemcpy(db2, db2_h_2, sizeof(double)*n_classes*n_batch, cudaMemcpyHostToDevice);
     std::cout << rank << " db2_h_2 " << db2_h_2[0] << "\n";
   }
 
   void gradientStep(double lr){
-    myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr/num_procs);
-    myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr/num_procs);
-    myMatAdd(W2_d, dW2, W2_d, n_classes, n_hidden, -lr/num_procs);
-    myMatAdd(b2_d, db2, b2_d, n_classes, n_batch, -lr/num_procs);
+    myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr);
+    myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr);
+    myMatAdd(W2_d, dW2, W2_d, n_classes, n_hidden, -lr);
+    myMatAdd(b2_d, db2, b2_d, n_classes, n_batch, -lr);
   }
 };
 
