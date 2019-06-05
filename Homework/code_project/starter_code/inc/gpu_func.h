@@ -237,6 +237,7 @@ public:
     cudaMemcpy(dW2_h, dW2, sizeof(double)*n_classes*n_hidden, cudaMemcpyDeviceToHost);
     cudaMemcpy(db2_h, db2, sizeof(double)*n_classes*n_batch, cudaMemcpyDeviceToHost);
     std::cout << "dw1_h " << dW1_h[0] << "\n";
+    myPrintMat(dW1, n_hidden, n_feats, 2,2);
   }
 
   void gradientToDevice(){
@@ -247,10 +248,10 @@ public:
   }
 
   void gradientStep(double lr){
-    myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr);
-    myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr);
-    myMatAdd(W2_d, dW2, W2_d, n_classes, n_hidden, -lr);
-    myMatAdd(b2_d, db2, b2_d, n_classes, n_batch, -lr);
+    myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr/num_procs);
+    myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr/num_procs);
+    myMatAdd(W2_d, dW2, W2_d, n_classes, n_hidden, -lr/num_procs);
+    myMatAdd(b2_d, db2, b2_d, n_classes, n_batch, -lr/num_procs);
   }
 };
 
