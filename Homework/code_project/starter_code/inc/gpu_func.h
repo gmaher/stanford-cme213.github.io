@@ -90,6 +90,11 @@ public:
   double* dW2_h;
   double* db2_h;
 
+  double* dW1_h_2;
+  double* db1_h_2;
+  double* dW2_h_2;
+  double* db2_h_2;
+
    NeuralNetworkGPU(int x_size, int y_size, int hidden_size, int batch_size,
     int num_procs_) {
        n_feats   = x_size;
@@ -134,6 +139,11 @@ public:
        db1_h = (double*)malloc(sizeof(double)*h1*n_batch);
        dW2_h = (double*)malloc(sizeof(double)*n_classes*h1);
        db2_h = (double*)malloc(sizeof(double)*n_classes*n_batch);
+
+       dW1_h_2 = (double*)malloc(sizeof(double)*h1*n_feats);
+       db1_h_2 = (double*)malloc(sizeof(double)*h1*n_batch);
+       dW2_h_2 = (double*)malloc(sizeof(double)*n_classes*h1);
+       db2_h_2 = (double*)malloc(sizeof(double)*n_classes*n_batch);
 
 
      }
