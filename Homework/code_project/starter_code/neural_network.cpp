@@ -330,6 +330,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
 
+    int proc_batch_size = batch_size/num_procs;
     NeuralNetworkGPU nn_gpu(M,N_class,nn.H[1],batch_size);
 
     if (rank == 0){
@@ -365,40 +366,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     double* X_data_ptr_loc;
     double* Y_data_ptr_loc;
 
-    X_data_ptr_loc = (double*)malloc(M*N*sizeof(double));
-    // Y_data_ptr_loc = (double*)malloc(N*N_class*sizeof(double));
-
-    //X_data_ptr_loc = (double*)malloc(10000*sizeof(double));
-    Y_data_ptr_loc = (double*)malloc(10000*sizeof(double));
-
-
-    if (rank == 0){
-      const double* x_ptr = X.memptr();
-      const double* y_ptr = y.memptr();
-      std::copy(x_ptr, x_ptr+M*N, X_data_ptr_loc);
-      std::copy(y_ptr, y_ptr+10000, Y_data_ptr_loc);
-    }
-
-    MPI_Bcast(X_data_ptr_loc, M*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    // MPI_Bcast(Y_data_ptr_loc, N*N_class, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    //
-    // for(int proc=0; proc<num_procs; proc++) {
-    //   if(rank == proc) {
-    //     // This is the turn of process proc to print its message
-    //     printf("Rank %3d has values: ",rank);
-    //     for(int i=0; i<10; i++) {
-    //       printf(" %5d ", Y_data_ptr_loc[i]);
-    //     }
-    //     printf("\n");
-    //   }
-    //   if(proc == num_procs-1 && rank == num_procs-1) {
-    //     printf("\n");
-    //   }
-    //
-    //   // A barrier is needed to make sure the messages are printed in order
-    //   MPI_Barrier(MPI_COMM_WORLD);
-    // }
-    //********************************
+    X_data_ptr_loc = (double*)malloc(M*batch_size*sizeof(double));
+    Y_data_ptr_loc = (double*)malloc(N_class*batch_size*sizeof(double));
 
     int iter = 0;
 
@@ -419,12 +388,16 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                arma::mat X_batch = X.cols(batch * batch_size, last_col);
                arma::mat y_batch = y.cols(batch * batch_size, last_col);
 
-               if (X_batch.n_cols != batch_size){
-                 X_batch = X.cols(last_col-batch_size, last_col);
-                 y_batch = y.cols(last_col-batch_size, last_col);
-                 std::cout << "too small x batch " << X_batch.n_cols << "\n";
-               }
+               const double* x_ptr = X_batch.memptr();
+               const double* y_ptr = y_batch.memptr();
+               std::copy(x_ptr, x_ptr+M*batch_size, X_data_ptr_loc);
+               std::copy(y_ptr, y_ptr+N_class*batch_size, Y_data_ptr_loc);
+             }
 
+             MPI_Bcast(X_data_ptr_loc, M*batch_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+             // MPI_Bcast(Y_data_ptr_loc, N*N_class, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+             if(rank == 0){
                nn_gpu.forward(X_batch);
                nn_gpu.backward(X_batch, y_batch, learning_rate, reg);
              }
