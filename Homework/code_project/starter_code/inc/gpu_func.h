@@ -236,10 +236,10 @@ public:
     cudaMemcpy(db1_h, db1, sizeof(double)*n_hidden*n_batch, cudaMemcpyDeviceToHost);
     cudaMemcpy(dW2_h, dW2, sizeof(double)*n_classes*n_hidden, cudaMemcpyDeviceToHost);
     cudaMemcpy(db2_h, db2, sizeof(double)*n_classes*n_batch, cudaMemcpyDeviceToHost);
+    std::cout << "dw1_h " << dW1_h[0] << "\n";
   }
 
   void gradientToDevice(){
-    std::cout << "dw1_h_2 " << dW1_h_2[0] << "\n";
     cudaMemcpy(dW1, dW1_h_2, sizeof(double)*n_hidden*n_feats, cudaMemcpyHostToDevice);
     cudaMemcpy(db1, db1_h_2, sizeof(double)*n_hidden*n_batch, cudaMemcpyHostToDevice);
     cudaMemcpy(dW2, dW2_h_2, sizeof(double)*n_classes*n_hidden, cudaMemcpyHostToDevice);
