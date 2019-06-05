@@ -171,7 +171,7 @@ public:
 
    }
 
-   void backward(const arma::mat& X, const arma::mat& Y, double lr, double reg){
+   void backward(const arma::mat& X, const arma::mat& Y, double reg){
      const double* y_ptr = Y.memptr();
      cudaMemcpy(Yd, y_ptr, sizeof(double)*n_batch*n_classes, cudaMemcpyHostToDevice);
      myMatAdd(a2_d, Yd, d2, n_classes, n_batch, -1.0);
@@ -205,12 +205,14 @@ public:
      cudaMemcpy(dW1, W1_d, sizeof(double)*n_hidden*n_feats, cudaMemcpyDeviceToDevice);
      myGEMM(d1,Xt_d,dW1,&scale,&reg,n_hidden,n_feats,n_batch);
      myRowSum(d1, db1, n_hidden, n_batch, scale);
-
-     myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr);
-     myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr);
-     myMatAdd(W2_d, dW2, W2_d, n_classes, n_hidden, -lr);
-     myMatAdd(b2_d, db2, b2_d, n_classes, n_batch, -lr);
    }
+
+  void gradientStep(double lr){
+    myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr);
+    myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr);
+    myMatAdd(W2_d, dW2, W2_d, n_classes, n_hidden, -lr);
+    myMatAdd(b2_d, db2, b2_d, n_classes, n_batch, -lr);
+  }
 };
 
 #endif
