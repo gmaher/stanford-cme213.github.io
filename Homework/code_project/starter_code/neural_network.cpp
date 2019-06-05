@@ -392,6 +392,25 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       y_loc = arma::mat(Y_data_ptr_loc, M_class, N);
     }
 
+    for(int proc=0; proc<num_procs; proc++) {
+      if(rank == proc) {
+        // This is the turn of process proc to print its message
+        printf("Rank %3d has values: ",rank);
+
+        printf(" %5d ", X_loc[300,100]);
+
+        printf("\n");
+      }
+
+      if(proc == num_procs-1 && rank == num_procs-1) {
+        printf("\n");
+      }
+
+      // A barrier is needed to make sure the messages are printed in order
+      MPI_Barrier(MPI_COMM_WORLD);
+    }
+
+
     int iter = 0;
 
     for(int epoch = 0; epoch < epochs; ++epoch) {
