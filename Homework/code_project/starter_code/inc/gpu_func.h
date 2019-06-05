@@ -176,7 +176,6 @@ int rank;
    }
 
    void forward(const arma::mat& X){
-     std::cout << rank << " x norm " << arma::norm(X, "fro") << "\n";
        const double* x_ptr = X.memptr();
        if (X.n_cols!=n_batch){
          std::cout << "nngpu forward incorrect x_cols " << X.n_cols << "\n";
@@ -238,7 +237,6 @@ int rank;
     cudaMemcpy(db1_h, db1, sizeof(double)*n_hidden*n_batch, cudaMemcpyDeviceToHost);
     cudaMemcpy(dW2_h, dW2, sizeof(double)*n_classes*n_hidden, cudaMemcpyDeviceToHost);
     cudaMemcpy(db2_h, db2, sizeof(double)*n_classes*n_batch, cudaMemcpyDeviceToHost);
-    std::cout << rank << " db2_h " << db2_h[0] << "\n";
   }
 
   void gradientToDevice(){
@@ -246,7 +244,6 @@ int rank;
     cudaMemcpy(db1, db1_h_2, sizeof(double)*n_hidden*n_batch, cudaMemcpyHostToDevice);
     cudaMemcpy(dW2, dW2_h_2, sizeof(double)*n_classes*n_hidden, cudaMemcpyHostToDevice);
     cudaMemcpy(db2, db2_h_2, sizeof(double)*n_classes*n_batch, cudaMemcpyHostToDevice);
-    std::cout << rank << " db1_h_2 " << db1_h_2[0] << "\n";
   }
 
   void gradientStep(double lr){
