@@ -366,7 +366,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     double* Y_data_ptr_loc;
 
     X_data_ptr_loc = (double*)malloc(M*N*sizeof(double));
-    Y_data_ptr_loc = (double*)malloc(N*N_class*izeof(double));
+    Y_data_ptr_loc = (double*)malloc(N*N_class*sizeof(double));
 
     if (rank==0){
 
