@@ -322,16 +322,18 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
 
     int N = (rank == 0)?X.n_cols:0;
-    int M = X.n_rows;
-    int N_class = y.n_rows;
+    int M = (rank == 0)?X.n_rows:0;
+    int M_class = (rank == 0)?y.n_rows:0;
     MPI_SAFE_CALL(MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD));
+    MPI_SAFE_CALL(MPI_Bcast(&M, 1, MPI_INT, 0, MPI_COMM_WORLD));
+    MPI_SAFE_CALL(MPI_Bcast(&M_class, 1, MPI_INT, 0, MPI_COMM_WORLD));
 
     std::ofstream error_file;
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
 
     int proc_batch_size = batch_size/num_procs;
-    NeuralNetworkGPU nn_gpu(M,N_class,nn.H[1],batch_size);
+    NeuralNetworkGPU nn_gpu(M,M_class,nn.H[1],batch_size);
 
     if (rank == 0){
       std::cout << "num procs=" << num_procs << "\n";
@@ -367,7 +369,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     double* Y_data_ptr_loc;
 
     X_data_ptr_loc = (double*)malloc(M*batch_size*sizeof(double));
-    Y_data_ptr_loc = (double*)malloc(N_class*batch_size*sizeof(double));
+    Y_data_ptr_loc = (double*)malloc(M_class*batch_size*sizeof(double));
 
     int iter = 0;
 
@@ -393,14 +395,14 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
                const double* x_ptr = X_batch.memptr();
                const double* y_ptr = y_batch.memptr();
-               std::copy(x_ptr, x_ptr+M*batch_size-1, X_data_ptr_loc);
-               std::copy(y_ptr, y_ptr+N_class*batch_size-1, Y_data_ptr_loc);
+               std::copy(x_ptr, x_ptr+M*batch_size, X_data_ptr_loc);
+               std::copy(y_ptr, y_ptr+M_class*batch_size, Y_data_ptr_loc);
 
                nn_gpu.forward(X_batch);
                nn_gpu.backward(X_batch, y_batch, learning_rate, reg);
              }
 
-             MPI_Bcast(X_data_ptr_loc, M*batch_size-1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+             MPI_Bcast(X_data_ptr_loc, M*batch_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
              // MPI_Bcast(Y_data_ptr_loc, N*N_class, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
              MPI_Barrier(MPI_COMM_WORLD);
