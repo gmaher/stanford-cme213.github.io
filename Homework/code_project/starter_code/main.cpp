@@ -13,9 +13,9 @@
 #include "utils/common.h"
 #include "gpu_func.h"
 
-#define FILE_TRAIN_IMAGES "/data/train-images-idx3-ubyte"
-#define FILE_TRAIN_LABELS "/data/train-labels-idx1-ubyte"
-#define FILE_TEST_IMAGES "/data/t10k-images-idx3-ubyte"
+#define FILE_TRAIN_IMAGES "./data/train-images-idx3-ubyte"
+#define FILE_TRAIN_LABELS "./data/train-labels-idx1-ubyte"
+#define FILE_TEST_IMAGES "./data/t10k-images-idx3-ubyte"
 #define FILE_TEST_OUTPUT "Outputs/Pred_testset.txt"
 #define NUM_TRAIN 60000
 #define IMAGE_SIZE 784  // 28 x 28
