@@ -176,6 +176,7 @@ int rank;
    }
 
    void forward(const arma::mat& X){
+     std::cout << rank << "xnorm " << arma::norm(X, "fro");
        const double* x_ptr = X.memptr();
        if (X.n_cols!=n_batch){
          std::cout << "nngpu forward incorrect x_cols " << X.n_cols << "\n";
