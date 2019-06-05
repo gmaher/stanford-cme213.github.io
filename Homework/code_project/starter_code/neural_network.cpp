@@ -339,7 +339,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       std::cout << "num procs=" << num_procs << "\n";
       std::cout << "num cols X=" << N << "\n";
       std::cout << "num rows X=" << M << "\n";
-      std::cout << "num classes Y=" << N_class << "\n";
+      std::cout << "num classes Y=" << M_class << "\n";
 
       nn_gpu.set_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
     }
