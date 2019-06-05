@@ -373,7 +373,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       std::copy(y.memptr(), y.memptr()+N*N_class, Y_data_ptr_loc);
     }
 
-    MPI_Bcast(X_data_ptr_loc, M*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(X_data_ptr_loc, 10, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     // MPI_Bcast(Y_data_ptr_loc, N*N_class, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     //
     // for(int proc=0; proc<num_procs; proc++) {
@@ -447,6 +447,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       nn_gpu.get_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
     }
 
+    if (rank != 0){
+      free(X_data_ptr_loc);
+      //free(Y_data_ptr_loc);
+    }
     error_file.close();
 }
 
