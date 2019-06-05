@@ -393,14 +393,14 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
                const double* x_ptr = X_batch.memptr();
                const double* y_ptr = y_batch.memptr();
-               std::copy(x_ptr, x_ptr+100000, X_data_ptr_loc);
-               std::copy(y_ptr, y_ptr+100000, Y_data_ptr_loc);
+               std::copy(x_ptr, x_ptr+10000, X_data_ptr_loc);
+               std::copy(y_ptr, y_ptr+10000, Y_data_ptr_loc);
 
                nn_gpu.forward(X_batch);
                nn_gpu.backward(X_batch, y_batch, learning_rate, reg);
              }
 
-             MPI_Bcast(X_data_ptr_loc, 100000, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+             MPI_Bcast(X_data_ptr_loc, 10000, MPI_DOUBLE, 0, MPI_COMM_WORLD);
              // MPI_Bcast(Y_data_ptr_loc, N*N_class, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
              MPI_Barrier(MPI_COMM_WORLD);
