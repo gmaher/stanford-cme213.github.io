@@ -59,6 +59,7 @@ public:
   int n_classes;
   int n_batch;
   int n_hidden;
+  int num_procs;
 
   double* Xd;
   double* Yd;
@@ -89,11 +90,13 @@ public:
   double* dW2_h;
   double* db2_h;
 
-   NeuralNetworkGPU(int x_size, int y_size, int hidden_size, int batch_size) {
+   NeuralNetworkGPU(int x_size, int y_size, int hidden_size, int batch_size,
+    int num_procs_) {
        n_feats   = x_size;
        n_classes = y_size;
        n_batch   = batch_size;
        n_hidden  = hidden_size;
+       num_procs = num_procs_;
 	printf("feats=%u, classes=%u, batch=%u, hidden=%u",n_feats, n_classes, n_batch, n_hidden);
        cudaMalloc((void**)&Xd, sizeof(double)*x_size*batch_size);
        cudaMalloc((void**)&Yd, sizeof(double)*y_size*batch_size);
@@ -226,10 +229,10 @@ public:
   }
 
   void gradientStep(double lr){
-    myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr);
-    myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr);
-    myMatAdd(W2_d, dW2, W2_d, n_classes, n_hidden, -lr);
-    myMatAdd(b2_d, db2, b2_d, n_classes, n_batch, -lr);
+    myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr/num_procs);
+    myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr/num_procs);
+    myMatAdd(W2_d, dW2, W2_d, n_classes, n_hidden, -lr/num_procs);
+    myMatAdd(b2_d, db2, b2_d, n_classes, n_batch, -lr/num_procs);
   }
 };
 

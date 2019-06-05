@@ -333,7 +333,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int print_flag = 0;
 
     int proc_batch_size = batch_size/num_procs;
-    NeuralNetworkGPU nn_gpu(M,M_class,nn.H[1],proc_batch_size);
+    NeuralNetworkGPU nn_gpu(M,M_class,nn.H[1],proc_batch_size, num_procs);
 
     if (rank == 0){
       std::cout << "num procs=" << num_procs << "\n";
@@ -440,6 +440,16 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             nn_gpu.forward(X_batch);
             nn_gpu.backward(X_batch, y_batch, reg);
             nn_gpu.gradientToHost();
+
+            MPI_Allreduce(nn.dW1_h, nn.dW1_h, nn.n_hidden*nn.n_feats, MPI_FLOAT,
+              MPI_SUM, MPI_COMM_WORLD);
+            MPI_Allreduce(nn.db1_h, nn.db1_h, nn.n_hidden*nn.n_batch, MPI_FLOAT,
+              MPI_SUM, MPI_COMM_WORLD);
+            MPI_Allreduce(nn.dW2_h, nn.dW2_h, nn.n_class*nn.n_hidden, MPI_FLOAT,
+              MPI_SUM, MPI_COMM_WORLD);
+            MPI_Allreduce(nn.db2_h, nn.db2_h, nn.n_class*nn.n_batch, MPI_FLOAT,
+              MPI_SUM, MPI_COMM_WORLD);
+
             nn_gpu.gradientStep(learning_rate);
 
             if(print_every <= 0) {
