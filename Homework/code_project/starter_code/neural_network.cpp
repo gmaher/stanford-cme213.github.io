@@ -440,7 +440,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             nn_gpu.forward(X_batch);
             nn_gpu.backward(X_batch, y_batch, reg);
-            //nn_gpu.gradientToHost();
+            nn_gpu.gradientToHost();
             nn_gpu.gradientStep(learning_rate);
 
             if(print_every <= 0) {
