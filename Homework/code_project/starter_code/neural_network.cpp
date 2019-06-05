@@ -440,7 +440,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             nn_gpu.forward(X_batch);
             nn_gpu.backward(X_batch, y_batch, reg);
-            nn_gpu.gradientStep(lr);
+            nn_gpu.gradientStep(learning_rate);
 
             if(print_every <= 0) {
                 print_flag = batch == 0;
@@ -498,8 +498,7 @@ void parallel_test(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       NeuralNetworkGPU nn_gpu(M,N_class,nn.H[1],batch_size);
       nn_gpu.set_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
       nn_gpu.forward(X.cols(0,batch_size-1));
-      nn_gpu.backward(X.cols(0,batch_size-1), y.cols(0,batch_size-1),
-      learning_rate, reg);
+      nn_gpu.backward(X.cols(0,batch_size-1), y.cols(0,batch_size-1), reg);
 
       struct cache fcache;
       feedforward(nn, X.cols(0,batch_size-1), fcache);
