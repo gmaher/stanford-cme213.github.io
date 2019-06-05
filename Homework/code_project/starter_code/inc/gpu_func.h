@@ -237,7 +237,6 @@ public:
     cudaMemcpy(dW2_h, dW2, sizeof(double)*n_classes*n_hidden, cudaMemcpyDeviceToHost);
     cudaMemcpy(db2_h, db2, sizeof(double)*n_classes*n_batch, cudaMemcpyDeviceToHost);
     std::cout << "db1_h " << db1_h[0] << "\n";
-    myPrintMat(db1, n_hidden, n_batch, 2,2);
   }
 
   void gradientToDevice(){
