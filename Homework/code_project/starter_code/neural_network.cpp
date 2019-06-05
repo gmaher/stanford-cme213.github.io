@@ -372,6 +372,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     Y_data_ptr_loc = (double*)malloc(M_class*N*sizeof(double));
 
     if (rank == 0){
+      printf("r0 %f ", arma::norm(X, "fro"));
       const double* x_ptr = X.memptr();
       const double* y_ptr = y.memptr();
       std::copy(x_ptr, x_ptr+M*N, X_data_ptr_loc);
@@ -387,7 +388,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     if (rank == 0){
       X_loc = X;
       y_loc = y;
-      printf("r0 %u ", arma::norm(X, 1));
 
     }else {
       X_loc = arma::mat(X_data_ptr_loc, M, N);
