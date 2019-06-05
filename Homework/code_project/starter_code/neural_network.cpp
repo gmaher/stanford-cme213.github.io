@@ -508,7 +508,7 @@ void parallel_test(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       std::cout << "num cols X=" << N << "\n";
       std::cout << "num rows X=" << M << "\n";
       std::cout << "num classes Y=" << N_class << "\n";
-      NeuralNetworkGPU nn_gpu(M,N_class,nn.H[1],batch_size, num_procs);
+      NeuralNetworkGPU nn_gpu(M,N_class,nn.H[1],batch_size, num_procs, rank);
       nn_gpu.set_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
       nn_gpu.forward(X.cols(0,batch_size-1));
       nn_gpu.backward(X.cols(0,batch_size-1), y.cols(0,batch_size-1), reg);
