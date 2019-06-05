@@ -375,6 +375,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         int num_batches = (N + batch_size - 1)/batch_size;
 
         for(int batch = 0; batch < num_batches-1; ++batch) {
+          if (rank == 0){
+            std::cout << "Par train iteration " << batch << "\n";
+          }
             /*
              * Possible Implementation:
              * 1. subdivide input batch of images and `MPI_scatter()' to each MPI node
