@@ -245,7 +245,7 @@ int rank;
     // cudaMemcpy(db1, db1_h_2, sizeof(double)*n_hidden*n_batch, cudaMemcpyHostToDevice);
     // cudaMemcpy(dW2, dW2_h_2, sizeof(double)*n_classes*n_hidden, cudaMemcpyHostToDevice);
     // cudaMemcpy(db2, db2_h_2, sizeof(double)*n_classes*n_batch, cudaMemcpyHostToDevice);
-    std::cout << rank << " db2_h_2 " << db2_h_2[0] << "\n";
+    std::cout << rank << " db1_h_2 " << db1_h_2[0] << "\n";
   }
 
   void gradientStep(double lr){
