@@ -336,6 +336,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 //    int proc_batch_size = batch_size/num_procs;
     int proc_batch_size = batch_size;
     NeuralNetworkGPU nn_gpu(M,M_class,nn.H[1],proc_batch_size, num_procs, rank);
+    nn_gpu.set_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
 
     if (rank == 0){
       std::cout << "num procs=" << num_procs << "\n";
@@ -344,7 +345,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       std::cout << "num classes Y=" << M_class << "\n";
       std::cout << "proc_batch_size=" << proc_batch_size << "\n";
 
-      nn_gpu.set_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
     }
     std::cout << "hello from rank " << rank << "\n";
     checkCudaErrors(cudaSetDevice(rank));
