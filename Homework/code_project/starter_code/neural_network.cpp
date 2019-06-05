@@ -430,14 +430,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              * 4. update local network coefficient at each node
              */
 
-             if (rank == 0){
-               int last_col = std::min((batch + 1)*batch_size-1, N-1);
-               arma::mat X_batch = X.cols(batch * batch_size, last_col);
-               arma::mat y_batch = y.cols(batch * batch_size, last_col);
+            int last_col = std::min((batch + 1)*batch_size-1, N-1);
+            arma::mat X_batch = X_loc.cols(batch * batch_size, last_col);
+            arma::mat y_batch = y_loc.cols(batch * batch_size, last_col);
 
-               nn_gpu.forward(X_batch);
-               nn_gpu.backward(X_batch, y_batch, learning_rate, reg);
-             }
+            nn_gpu.forward(X_batch);
+            nn_gpu.backward(X_batch, y_batch, learning_rate, reg);
 
             if(print_every <= 0) {
                 print_flag = batch == 0;
