@@ -381,6 +381,16 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     MPI_Bcast(X_data_ptr_loc, M*batch_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     MPI_Bcast(Y_data_ptr_loc, N*M_class, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
+    const arma::mat X_loc
+    const arma::mat y_loc
+
+    if (rank == 0){
+      X_loc = X;
+      y_loc = y;
+    }else {
+      X_loc = arma::mat(X_data_ptr_loc, M, N);
+      y_loc = arma::mat(Y_data_ptr_loc, M_class, N);
+    }
 
     int iter = 0;
 
