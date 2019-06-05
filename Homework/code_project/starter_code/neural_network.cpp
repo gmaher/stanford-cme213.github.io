@@ -403,7 +403,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              MPI_Bcast(X_data_ptr_loc, M*batch_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
              // MPI_Bcast(Y_data_ptr_loc, N*N_class, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-
+             MPI_Barrier(MPI_COMM_WORLD);
 
             if(print_every <= 0) {
                 print_flag = batch == 0;
