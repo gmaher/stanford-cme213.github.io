@@ -373,7 +373,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
       std::copy(y.memptr(), y.memptr()+N*N_class, Y_data_ptr_loc);
     }
 
-    //MPI_Bcast(X_data_ptr_loc, M*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(X_data_ptr_loc, M*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     // MPI_Bcast(Y_data_ptr_loc, N*N_class, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     //
     // for(int proc=0; proc<num_procs; proc++) {
