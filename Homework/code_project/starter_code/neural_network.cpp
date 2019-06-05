@@ -286,7 +286,7 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 nn.b[i] -= learning_rate * bpgrads.db[i];
             }
 
-            std::cout << "seq db2[0]=" << bpgrads.db[1](0,0) << "\n";
+            // std::cout << "seq db2[0]=" << bpgrads.db[1](0,0) << "\n";
             /* Debug routine runs only when debug flag is set. If print_every is zero, it saves
                for the first batch of each epoch to avoid saving too many large files.
                Note that for the first time, you have to run debug and serial modes together.
@@ -387,32 +387,32 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     arma::mat X_loc;
     arma::mat y_loc;
 
-    if (rank == 0){
-      X_loc = X;
-      y_loc = y;
-
-    }else {
-      X_loc = arma::mat(X_data_ptr_loc, M, N);
-      y_loc = arma::mat(Y_data_ptr_loc, M_class, N);
-    }
-
-    for(int proc=0; proc<num_procs; proc++) {
-      if(rank == proc) {
-        // This is the turn of process proc to print its message
-        printf("Rank %3d has values: ",rank);
-
-        printf(" %f ", arma::norm(X_loc, 1));
-        printf(" %f ", arma::norm(y_loc, "fro"));
-        printf("\n");
-      }
-
-      if(proc == num_procs-1 && rank == num_procs-1) {
-        printf("\n");
-      }
-
-      // A barrier is needed to make sure the messages are printed in order
-      MPI_Barrier(MPI_COMM_WORLD);
-    }
+    // if (rank == 0){
+    //   X_loc = X;
+    //   y_loc = y;
+    //
+    // }else {
+    //   X_loc = arma::mat(X_data_ptr_loc, M, N);
+    //   y_loc = arma::mat(Y_data_ptr_loc, M_class, N);
+    // }
+    //
+    // for(int proc=0; proc<num_procs; proc++) {
+    //   if(rank == proc) {
+    //     // This is the turn of process proc to print its message
+    //     printf("Rank %3d has values: ",rank);
+    //
+    //     printf(" %f ", arma::norm(X_loc, 1));
+    //     printf(" %f ", arma::norm(y_loc, "fro"));
+    //     printf("\n");
+    //   }
+    //
+    //   if(proc == num_procs-1 && rank == num_procs-1) {
+    //     printf("\n");
+    //   }
+    //
+    //   // A barrier is needed to make sure the messages are printed in order
+    //   MPI_Barrier(MPI_COMM_WORLD);
+    // }
 
 
     int iter = 0;
@@ -443,7 +443,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              // arma::mat y_batch = y_loc.cols(batch * batch_size, last_col);
              //
 
-             MPI_Barrier(MPI_COMM_WORLD);
+             // MPI_Barrier(MPI_COMM_WORLD);
             nn_gpu.forward(X_batch);
             nn_gpu.backward(X_batch, y_batch, reg);
             nn_gpu.gradientToHost();
