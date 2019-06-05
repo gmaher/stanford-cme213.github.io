@@ -439,7 +439,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             nn_gpu.forward(X_batch);
             nn_gpu.backward(X_batch, y_batch, reg);
-            MPI_Barrier(MPI_COMM_WORLD);
             nn_gpu.gradientToHost();
 
             MPI_Allreduce(nn_gpu.dW1_h, nn_gpu.dW1_h_2, nn_gpu.n_hidden*nn_gpu.n_feats, MPI_DOUBLE,
@@ -453,7 +452,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
 
 
-            // nn_gpu.gradientToDevice();
+            MPI_Barrier(MPI_COMM_WORLD);
+            nn_gpu.gradientToDevice();
 
             nn_gpu.gradientStep(learning_rate);
 
