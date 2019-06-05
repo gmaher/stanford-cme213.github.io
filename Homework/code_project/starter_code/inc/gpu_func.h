@@ -84,6 +84,11 @@ public:
   double* dW1;
   double* db1;
 
+  double* dW1_h;
+  double* db1_h;
+  double* dW2_h;
+  double* db2_h;
+
    NeuralNetworkGPU(int x_size, int y_size, int hidden_size, int batch_size) {
        n_feats   = x_size;
        n_classes = y_size;
@@ -121,6 +126,12 @@ public:
 
        cudaMalloc((void**)&dW1, sizeof(double)*h1*n_feats);
        cudaMalloc((void**)&db1, sizeof(double)*h1*batch_size);
+
+       dW1_h = (double*)Malloc(sizeof(double)*h1*n_feats);
+       db1_h = (double*)Malloc(sizeof(double)*h1*n_batch);
+       dW2_h = (double*)Malloc(sizeof(double)*n_classes*h1);
+       db1_h = (double*)Malloc(sizeof(double)*n_classes*n_batch);
+
 
      }
 
@@ -206,6 +217,13 @@ public:
      myGEMM(d1,Xt_d,dW1,&scale,&reg,n_hidden,n_feats,n_batch);
      myRowSum(d1, db1, n_hidden, n_batch, scale);
    }
+
+  void gradientToHost(){
+    cudaMemcpy(dW1_h, dW1_d, sizeof(double)*n_hidden*n_feats, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(db1_h, db1_d, sizeof(double)*n_hidden*n_batch, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(dW2_h, dW2_d, sizeof(double)*n_classes*n_hidden, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(db2_h, db2_d, sizeof(double)*n_classes*n_batch, cudaMemcpyDeviceToDevice);
+  }
 
   void gradientStep(double lr){
     myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr);
