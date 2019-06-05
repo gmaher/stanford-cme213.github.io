@@ -333,7 +333,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int print_flag = 0;
 
     int proc_batch_size = batch_size/num_procs;
-    NeuralNetworkGPU nn_gpu(M,M_class,nn.H[1],batch_size);
+    NeuralNetworkGPU nn_gpu(M,M_class,nn.H[1],proc_batch_size);
 
     if (rank == 0){
       std::cout << "num procs=" << num_procs << "\n";
@@ -431,8 +431,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              */
 
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
-            arma::mat X_batch = X_loc.cols(batch * batch_size, last_col);
-            arma::mat y_batch = y_loc.cols(batch * batch_size, last_col);
+            arma::mat X_batch = X_loc.cols(batch * batch_size*rank*proc_batch_size,
+                batch * batch_size*(rank+1)*proc_batch_size);
+            arma::mat y_batch = y_loc.cols(batch * batch_size*rank*proc_batch_size,
+               batch * batch_size*(rank+1)*proc_batch_size);
 
             nn_gpu.forward(X_batch);
             nn_gpu.backward(X_batch, y_batch, learning_rate, reg);
