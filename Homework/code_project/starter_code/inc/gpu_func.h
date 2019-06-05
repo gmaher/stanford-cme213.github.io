@@ -94,14 +94,15 @@ public:
   double* db1_h_2;
   double* dW2_h_2;
   double* db2_h_2;
-
+int rank;
    NeuralNetworkGPU(int x_size, int y_size, int hidden_size, int batch_size,
-    int num_procs_) {
+    int num_procs_, int rank_) {
        n_feats   = x_size;
        n_classes = y_size;
        n_batch   = batch_size;
        n_hidden  = hidden_size;
        num_procs = num_procs_;
+       rank = rank_;
 	printf("feats=%u, classes=%u, batch=%u, hidden=%u",n_feats, n_classes, n_batch, n_hidden);
        cudaMalloc((void**)&Xd, sizeof(double)*x_size*batch_size);
        cudaMalloc((void**)&Yd, sizeof(double)*y_size*batch_size);
@@ -244,7 +245,7 @@ public:
     cudaMemcpy(db1, db1_h_2, sizeof(double)*n_hidden*n_batch, cudaMemcpyHostToDevice);
     cudaMemcpy(dW2, dW2_h_2, sizeof(double)*n_classes*n_hidden, cudaMemcpyHostToDevice);
     cudaMemcpy(db2, db2_h_2, sizeof(double)*n_classes*n_batch, cudaMemcpyHostToDevice);
-    std::cout << "db2_h_2 " << db2_h_2[0] << "\n";
+    std::cout << rank << " db2_h_2 " << db2_h_2[0] << "\n";
   }
 
   void gradientStep(double lr){

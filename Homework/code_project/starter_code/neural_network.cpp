@@ -333,7 +333,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int print_flag = 0;
 
     int proc_batch_size = batch_size/num_procs;
-    NeuralNetworkGPU nn_gpu(M,M_class,nn.H[1],proc_batch_size, num_procs);
+    NeuralNetworkGPU nn_gpu(M,M_class,nn.H[1],proc_batch_size, num_procs, rank);
 
     if (rank == 0){
       std::cout << "num procs=" << num_procs << "\n";
@@ -449,8 +449,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
               MPI_SUM, MPI_COMM_WORLD);
             MPI_Allreduce(nn_gpu.db2_h, nn_gpu.db2_h_2, nn_gpu.n_classes*nn_gpu.n_batch, MPI_DOUBLE,
               MPI_SUM, MPI_COMM_WORLD);
-
-
 
             MPI_Barrier(MPI_COMM_WORLD);
             nn_gpu.gradientToDevice();
