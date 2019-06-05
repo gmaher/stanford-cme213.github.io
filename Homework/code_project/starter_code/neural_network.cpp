@@ -387,6 +387,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     if (rank == 0){
       X_loc = X;
       y_loc = y;
+      printf("r0 %f ", arma::norm(X, "inf"));
+
     }else {
       X_loc = arma::mat(X_data_ptr_loc, M, N);
       y_loc = arma::mat(Y_data_ptr_loc, M_class, N);
