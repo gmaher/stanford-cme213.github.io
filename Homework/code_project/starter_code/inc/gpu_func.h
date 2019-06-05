@@ -130,7 +130,7 @@ public:
        dW1_h = (double*)malloc(sizeof(double)*h1*n_feats);
        db1_h = (double*)malloc(sizeof(double)*h1*n_batch);
        dW2_h = (double*)malloc(sizeof(double)*n_classes*h1);
-       db1_h = (double*)malloc(sizeof(double)*n_classes*n_batch);
+       db2_h = (double*)malloc(sizeof(double)*n_classes*n_batch);
 
 
      }
@@ -222,7 +222,7 @@ public:
     // cudaMemcpy(dW1_h, dW1, sizeof(double)*n_hidden*n_feats, cudaMemcpyDeviceToHost);
     // cudaMemcpy(db1_h, db1, sizeof(double)*n_hidden*n_batch, cudaMemcpyDeviceToHost);
      cudaMemcpy(dW2_h, dW2, sizeof(double)*n_classes*n_hidden, cudaMemcpyDeviceToHost);
-    //cudaMemcpy(db2_h, db2, sizeof(double)*n_classes*n_batch, cudaMemcpyDeviceToHost);
+     cudaMemcpy(db2_h, db2, sizeof(double)*n_classes*n_batch, cudaMemcpyDeviceToHost);
     //std::cout << "dw1 " << dW1_h[0] << "\n";
   }
 
