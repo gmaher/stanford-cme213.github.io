@@ -387,7 +387,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     if (rank == 0){
       X_loc = X;
       y_loc = y;
-      printf("r0 %f ", arma::norm(X, "inf"));
+      printf("r0 %f ", arma::norm(X, 1));
 
     }else {
       X_loc = arma::mat(X_data_ptr_loc, M, N);
@@ -399,7 +399,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         // This is the turn of process proc to print its message
         printf("Rank %3d has values: ",rank);
 
-        printf(" %f ", arma::norm(X_loc, "inf"));
+        printf(" %f ", arma::norm(X_loc, 1));
         printf(" %f ", arma::norm(y_loc, "fro"));
         printf("\n");
       }
