@@ -127,10 +127,10 @@ public:
        cudaMalloc((void**)&dW1, sizeof(double)*h1*n_feats);
        cudaMalloc((void**)&db1, sizeof(double)*h1*batch_size);
 
-       dW1_h = (double*)Malloc(sizeof(double)*h1*n_feats);
-       db1_h = (double*)Malloc(sizeof(double)*h1*n_batch);
-       dW2_h = (double*)Malloc(sizeof(double)*n_classes*h1);
-       db1_h = (double*)Malloc(sizeof(double)*n_classes*n_batch);
+       dW1_h = (double*)malloc(sizeof(double)*h1*n_feats);
+       db1_h = (double*)malloc(sizeof(double)*h1*n_batch);
+       dW2_h = (double*)malloc(sizeof(double)*n_classes*h1);
+       db1_h = (double*)malloc(sizeof(double)*n_classes*n_batch);
 
 
      }
@@ -219,10 +219,10 @@ public:
    }
 
   void gradientToHost(){
-    cudaMemcpy(dW1_h, dW1_d, sizeof(double)*n_hidden*n_feats, cudaMemcpyDeviceToDevice);
-    cudaMemcpy(db1_h, db1_d, sizeof(double)*n_hidden*n_batch, cudaMemcpyDeviceToDevice);
-    cudaMemcpy(dW2_h, dW2_d, sizeof(double)*n_classes*n_hidden, cudaMemcpyDeviceToDevice);
-    cudaMemcpy(db2_h, db2_d, sizeof(double)*n_classes*n_batch, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(dW1_h, dW1, sizeof(double)*n_hidden*n_feats, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(db1_h, db1, sizeof(double)*n_hidden*n_batch, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(dW2_h, dW2, sizeof(double)*n_classes*n_hidden, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(db2_h, db2, sizeof(double)*n_classes*n_batch, cudaMemcpyDeviceToDevice);
   }
 
   void gradientStep(double lr){
