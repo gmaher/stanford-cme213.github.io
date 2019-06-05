@@ -361,6 +361,19 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     7* set new parameters
     */
 
+    //******************Broadcast data
+    double* X_data_ptr_loc;
+    double* Y_data_ptr_loc;
+
+    X_data_ptr_loc = (double*)malloc(M*N*sizeof(double));
+    Y_data_ptr_loc = (double*)malloc(N*N_class*izeof(double));
+
+    if (rank==0){
+
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+    //********************************
+
     int iter = 0;
 
     for(int epoch = 0; epoch < epochs; ++epoch) {
