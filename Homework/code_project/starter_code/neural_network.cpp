@@ -397,7 +397,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         // This is the turn of process proc to print its message
         printf("Rank %3d has values: ",rank);
 
-        printf(" %5d ", X_loc[300,100]);
+        printf(" %f ", X_loc[300,100]);
 
         printf("\n");
       }
