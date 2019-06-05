@@ -443,9 +443,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              arma::mat y_batch = y_loc.cols(batch * batch_size, last_col);
 
 
+             MPI_Barrier(MPI_COMM_WORLD);
             nn_gpu.forward(X_batch);
             nn_gpu.backward(X_batch, y_batch, reg);
-            MPI_Barrier(MPI_COMM_WORLD);
             nn_gpu.gradientToHost();
 
             MPI_Allreduce(nn_gpu.dW1_h, nn_gpu.dW1_h_2, nn_gpu.n_hidden*nn_gpu.n_feats, MPI_DOUBLE,
