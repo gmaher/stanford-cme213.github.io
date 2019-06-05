@@ -286,7 +286,7 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 nn.b[i] -= learning_rate * bpgrads.db[i];
             }
 
-            std::cout << "seq db1[0]=" << bpgrads.db[0](0,0) << "\n";
+            std::cout << "seq db2[0]=" << bpgrads.db[1](0,0) << "\n";
             /* Debug routine runs only when debug flag is set. If print_every is zero, it saves
                for the first batch of each epoch to avoid saving too many large files.
                Note that for the first time, you have to run debug and serial modes together.
@@ -376,8 +376,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     if (rank == 0){
       const double* x_ptr = X.memptr();
       const double* y_ptr = y.memptr();
-      std::copy(x_ptr, x_ptr+M*N-1, X_data_ptr_loc);
-      std::copy(y_ptr, y_ptr+M_class*N-1, Y_data_ptr_loc);
+      std::copy(x_ptr, x_ptr+M*N, X_data_ptr_loc);
+      std::copy(y_ptr, y_ptr+M_class*N, Y_data_ptr_loc);
     }
 
     MPI_Bcast(X_data_ptr_loc, M*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
