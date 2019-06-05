@@ -432,11 +432,11 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              */
 
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
-            arma::mat X_batch = X_loc.cols(batch * batch_size+rank*proc_batch_size,
-                batch * batch_size+(rank+1)*proc_batch_size-1);
+            arma::mat X_batch = X_loc.cols(batch * batch_size+(num_procs-rank-1)*proc_batch_size,
+                batch * batch_size+(num_procs-rank)*proc_batch_size-1);
 
-            arma::mat y_batch = y_loc.cols(batch * batch_size+rank*proc_batch_size,
-               batch * batch_size+(rank+1)*proc_batch_size-1);
+            arma::mat y_batch = y_loc.cols(batch * batch_size+(num_procs-rank-1)*proc_batch_size,
+               batch * batch_size+(num_procs-rank)*proc_batch_size-1);
 
             nn_gpu.forward(X_batch);
             nn_gpu.backward(X_batch, y_batch, reg);
