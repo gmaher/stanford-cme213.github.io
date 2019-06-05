@@ -333,8 +333,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
 
-//    int proc_batch_size = batch_size/num_procs;
-    int proc_batch_size = batch_size;
+    int proc_batch_size = batch_size/num_procs;
+    //int proc_batch_size = batch_size;
     NeuralNetworkGPU nn_gpu(M,M_class,nn.H[1],proc_batch_size, num_procs, rank);
     nn_gpu.set_weights(nn.W[0], nn.b[0], nn.W[1], nn.b[1]);
 
