@@ -247,10 +247,10 @@ public:
   }
 
   void gradientStep(double lr){
-    myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr/num_procs);
-    myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr/num_procs);
-    myMatAdd(W2_d, dW2, W2_d, n_classes, n_hidden, -lr/num_procs);
-    myMatAdd(b2_d, db2, b2_d, n_classes, n_batch, -lr/num_procs);
+    myMatAdd(W1_d, dW1, W1_d, n_hidden, n_feats, -lr);
+    myMatAdd(b1_d, db1, b1_d, n_hidden, n_batch, -lr);
+    myMatAdd(W2_d, dW2, W2_d, n_classes, n_hidden, -lr);
+    myMatAdd(b2_d, db2, b2_d, n_classes, n_batch, -lr);
   }
 };
 
