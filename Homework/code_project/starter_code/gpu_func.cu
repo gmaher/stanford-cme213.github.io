@@ -48,7 +48,7 @@ void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
   int a_end   = a_start+(wA-1)*hA;
   int a_step  = BLOCK_SIZE*hA;
 
-  int b_start = bx*hB;
+  int b_start = bx*BLOCK_SIZE*hB;
   int b_step  = BLOCK_SIZE;
 
   float Dsub = 0;
