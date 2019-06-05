@@ -368,8 +368,19 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     double* X_data_ptr_loc;
     double* Y_data_ptr_loc;
 
-    X_data_ptr_loc = (double*)malloc(M*batch_size*sizeof(double));
-    Y_data_ptr_loc = (double*)malloc(M_class*batch_size*sizeof(double));
+    X_data_ptr_loc = (double*)malloc(M*N*sizeof(double));
+    Y_data_ptr_loc = (double*)malloc(M_class*N*sizeof(double));
+
+    if (rank == 0){
+      const double* x_ptr = X_batch.memptr();
+      const double* y_ptr = y_batch.memptr();
+      std::copy(x_ptr, x_ptr+M*N, X_data_ptr_loc);
+      std::copy(y_ptr, y_ptr+M_class*N, Y_data_ptr_loc);
+    }
+
+    MPI_Bcast(X_data_ptr_loc, M*batch_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(Y_data_ptr_loc, N*N_class, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
 
     int iter = 0;
 
@@ -393,17 +404,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                arma::mat X_batch = X.cols(batch * batch_size, last_col);
                arma::mat y_batch = y.cols(batch * batch_size, last_col);
 
-               const double* x_ptr = X_batch.memptr();
-               const double* y_ptr = y_batch.memptr();
-               std::copy(x_ptr, x_ptr+M*batch_size, X_data_ptr_loc);
-               std::copy(y_ptr, y_ptr+M_class*batch_size, Y_data_ptr_loc);
-
                nn_gpu.forward(X_batch);
                nn_gpu.backward(X_batch, y_batch, learning_rate, reg);
              }
-
-             MPI_Bcast(X_data_ptr_loc, M*batch_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-             //MPI_Bcast(Y_data_ptr_loc, N*N_class, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
             if(print_every <= 0) {
                 print_flag = batch == 0;
@@ -430,7 +433,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
     if (rank != 0){
       free(X_data_ptr_loc);
-      //free(Y_data_ptr_loc);
+      free(Y_data_ptr_loc);
     }
     error_file.close();
 }
