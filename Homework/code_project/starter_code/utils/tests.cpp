@@ -216,18 +216,18 @@ void TestGEMM(int M, int N, int K) {
     myPrintMat(dA, M,K,M,K);
     //std::cout << "dB\n";
     //myPrintMat(dB, K, N, K, N);
-    int err;
-    err = myGEMM(dA, dB, dummy, &alpha, &beta, M, N, K);
-    check_launch("myGEMM dummy");
+    // int err;
+    // err = myGEMM(dA, dB, dummy, &alpha, &beta, M, N, K);
+    // check_launch("myGEMM dummy");
 
-    // double mystart = MPI_Wtime();
-    //
-    // for(int i = 0; i < NUM_ITERS; i++) {
-    //     err = myGEMM(dA, dB, dC1, &alpha, &beta, M, N, K);
-    // }
-    //
-    // check_launch("myGEMM");
-    // double myend = MPI_Wtime();
+    double mystart = MPI_Wtime();
+
+    for(int i = 0; i < NUM_ITERS; i++) {
+        err = myGEMM(dA, dB, dC1, &alpha, &beta, M, N, K);
+    }
+
+    check_launch("myGEMM");
+    double myend = MPI_Wtime();
 
 
     /* This error code is for your own debugging, it does not catch
