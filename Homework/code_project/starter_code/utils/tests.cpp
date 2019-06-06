@@ -212,8 +212,8 @@ void TestGEMM(int M, int N, int K) {
 
     /* We are calling your GEMM function here */
     /* We will make one dummy call and check_launch here */
-    std::cout << "dA\n";
-    myPrintMat(dA, M,K,M,K);
+    //std::cout << "dA\n";
+    //myPrintMat(dA, M,K,M,K);
     //std::cout << "dB\n";
     //myPrintMat(dB, K, N, K, N);
     // int err;
@@ -265,8 +265,8 @@ void BenchmarkGEMM() {
               << std::endl;
 
     /* First GEMM Problem Size */
-    //int M = 800*SCALE, N = 1000*SCALE, K = 784*SCALE;
-    int M = 5, N = 5, K = 7;
+    int M = 800*SCALE, N = 1000*SCALE, K = 784*SCALE;
+    //int M = 5, N = 5, K = 7;
 
     std::cout << std::endl << "Starting GEMM 1: " << "M = " << M << "; N = "
               << N << "; K = " << K << std::endl;
@@ -274,11 +274,11 @@ void BenchmarkGEMM() {
     std::cout << "Completed GEMM 1" << std::endl;
 
     /* Secong GEMM Problem Size */
-    // M = 800*SCALE, N = 10*SCALE, K = 1000*SCALE;
-    // std::cout << std::endl << "Starting GEMM 2: " << "M = " << M << "; N = "
-    //           << N << "; K = " << K << std::endl;
-    // TestGEMM(M, N, K);
-    // std::cout << "Completed GEMM 2" << std::endl;
+    M = 800*SCALE, N = 10*SCALE, K = 1000*SCALE;
+    std::cout << std::endl << "Starting GEMM 2: " << "M = " << M << "; N = "
+              << N << "; K = " << K << std::endl;
+    TestGEMM(M, N, K);
+    std::cout << "Completed GEMM 2" << std::endl;
 
     //test sigmoid
     double x_test[9];
