@@ -230,12 +230,12 @@ void TestGEMM(int M, int N, int K) {
 
     int fail = compareGEMMResults(C1, C2, M, N);
 
-    if(fail == 0) {
-        std::cout << "Time for reference GEMM implementation: "
-                  << refend - refstart << std::endl;
-        std::cout << "Time for my GEMM implementation: "
-                  << myend - mystart << std::endl;
-    }
+    // if(fail == 0) {
+    //     std::cout << "Time for reference GEMM implementation: "
+    //               << refend - refstart << std::endl;
+    //     std::cout << "Time for my GEMM implementation: "
+    //               << myend - mystart << std::endl;
+    // }
 
     free(A);
     free(B);
