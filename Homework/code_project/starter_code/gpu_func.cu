@@ -130,7 +130,9 @@ void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
       Bsub[ty][tx] = 0;
     }
 
+
     __syncthreads();
+    printf("ab %u %u %u %u %u %u\n", bx, by, tx, ty, Asub[tx][ty], Bsub[tx][ty]);
 
     for (int i = 0; i < BLOCK_SIZE; i++){
       Dsub += Asub[ty][i]*Bsub[i][tx];
