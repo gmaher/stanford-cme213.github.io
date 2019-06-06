@@ -113,19 +113,19 @@ void gemm_gpu_fast(double* A, double* B, double* C, int hA, int wA,
     __shared__ float Asub[BLOCK_SIZE][BLOCK_SIZE];
     __shared__ float Bsub[BLOCK_SIZE][BLOCK_SIZE];
 
-    int a_row = by*BLOCK_SIZE+ty;
-    int a_id  = a+ty+tx*hA;
-    if (a_row < hA && a_id < wA*hA){
-      Asub[ty][tx] = A[a_id];
+    //int a_row = by*BLOCK_SIZE+ty;
+    //int a_id  = a+ty+tx*hA;
+    if (by*BLOCK_SIZE+ty < hA && a+ty+tx*hA < wA*hA){
+      Asub[ty][tx] = A[a+ty+tx*hA];
     }else{
       Asub[ty][tx] = 0;
     }
 
-    int b_col = bx*BLOCK_SIZE+tx;
-    int b_id  = b+ty+tx*hB;
-    int b_row = b%hB+ty;
-    if (b_row < hB && b_col < wB){
-      Bsub[ty][tx] = B[b_id];
+    //int b_col = bx*BLOCK_SIZE+tx;
+    //int b_id  = b+ty+tx*hB;
+    //int b_row = b%hB+ty;
+    if (b%hB+ty < hB && bx*BLOCK_SIZE+tx < wB){
+      Bsub[ty][tx] = B[b+ty+tx*hB];
     }else{
       Bsub[ty][tx] = 0;
     }
@@ -141,9 +141,9 @@ void gemm_gpu_fast(double* A, double* B, double* C, int hA, int wA,
   }
 
   if (by*BLOCK_SIZE+ty < hA && bx*BLOCK_SIZE+tx < wB){
-    int c = bx*BLOCK_SIZE*hA+by*BLOCK_SIZE;
+    int c_id = bx*BLOCK_SIZE*hA+by*BLOCK_SIZE+ty + tx*hA;
     //printf("%u %u %u %u %f\n", bx, by, tx, ty, Dsub);
-    C[c + ty + tx*hA] = alpha*Dsub + beta*C[c + ty + tx*hA];
+    C[c_id] = alpha*Dsub + beta*C[c_id];
   }
 
 }
