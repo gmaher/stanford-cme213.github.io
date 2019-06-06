@@ -64,6 +64,7 @@ void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
       Bsub[ty][tx] = 0;
     }
     else{
+      printf("%u %u %u %u %u %u %u %u", bx, by, tx, ty, a, b, a + ty + hA*tx, b + ty + hB*tx);
       Asub[ty][tx] = A[a + ty + hA*tx];
       Bsub[ty][tx] = B[b + ty + hB*tx];
     }
