@@ -118,14 +118,14 @@ void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
     if (a_row < hA && a_id < wA*hA){
       Asub[ty][tx] = A[a_id];
     }else{
-      Asub[ty][tx] = 0
+      Asub[ty][tx] = 0;
     }
 
     int b_col = bx*BLOCK_SIZE+tx;
     int b_id  = b+ty+tx*hB;
     int b_row = b%hB+ty;
     if (b_row < hB && b_col < wB){
-      Bsub[ty][tx] = B[b_id]
+      Bsub[ty][tx] = B[b_id];
     }else{
       Bsub[ty][tx] = 0;
     }
