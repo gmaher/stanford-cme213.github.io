@@ -60,16 +60,18 @@ void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
 
     if (a+tx*hA >= wA*hA || by*BLOCK_SIZE+ty >= hA){
       Asub[ty][tx] = 0;
-      printf("f bx-%u by-%u tx-%u ty-%u a-%u b-%u aid-%u b-id%u\n", bx, by, tx, ty, a, b, a + ty + hA*tx, b + ty + hB*tx);
+      printf("af bx-%u by-%u tx-%u ty-%u a-%u b-%u aid-%u b-id%u\n", bx, by, tx, ty, a, b, a + ty + hA*tx, b + ty + hB*tx);
     }
     else{
-      printf("g bx-%u by-%u tx-%u ty-%u a-%u b-%u aid-%u b-id%u\n", bx, by, tx, ty, a, b, a + ty + hA*tx, b + ty + hB*tx);
+      printf("ag bx-%u by-%u tx-%u ty-%u a-%u b-%u aid-%u b-id%u\n", bx, by, tx, ty, a, b, a + ty + hA*tx, b + ty + hB*tx);
       Asub[ty][tx] = A[a + ty + hA*tx];
     }
 
     if ((b%hB)+ty >= hB || bx*BLOCK_SIZE+tx >= wB){
+      printf("bf bx-%u by-%u tx-%u ty-%u a-%u b-%u aid-%u b-id%u\n", bx, by, tx, ty, a, b, a + ty + hA*tx, b + ty + hB*tx);
       Bsub[ty][tx] = 0;
     }else {
+      printf("bg bx-%u by-%u tx-%u ty-%u a-%u b-%u aid-%u b-id%u\n", bx, by, tx, ty, a, b, a + ty + hA*tx, b + ty + hB*tx);
       Bsub[ty][tx] = B[b + ty + hB*tx];
     }
 
