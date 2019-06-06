@@ -92,7 +92,7 @@ int useless_gpu_add_one(int t) {
 // }
 
 __global__
-void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
+void gemm_gpu_fast(double* A, double* B, double* C, int hA, int wA,
     int hB, int wB, double alpha, double beta){
   int bx = blockIdx.x;
   int by = blockIdx.y;
@@ -143,7 +143,7 @@ void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
   if (by*BLOCK_SIZE+ty < hA && bx*BLOCK_SIZE+tx < wB){
     int c = bx*BLOCK_SIZE*hA+by*BLOCK_SIZE;
     //printf("%u %u %u %u %f\n", bx, by, tx, ty, Dsub);
-    D[c + ty + tx*hA] = alpha*Dsub + beta*C[c + ty + tx*hA];
+    C[c + ty + tx*hA] = alpha*Dsub + beta*C[c + ty + tx*hA];
   }
 
 }
@@ -184,10 +184,10 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     /* TODO: Write an efficient GEMM implementation on GPU */
 
 
-    int c_size = M*N*sizeof(double);
-
-    double* Dd;
-    cudaMalloc((void**)&Dd, c_size);
+    // int c_size = M*N*sizeof(double);
+    //
+    // double* Dd;
+    // cudaMalloc((void**)&Dd, c_size);
 
     dim3 dimBlock(BLOCK_SIZE,BLOCK_SIZE);
     dim3 dimGrid(N/dimBlock.x+1, M/dimBlock.y+1);
@@ -195,9 +195,9 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     gemm_gpu_fast<<<dimGrid, dimBlock>>>(A, B, C, Dd, M, K, K, N,
       *alpha, *beta);
 
-    cudaMemcpy(C, Dd, c_size, cudaMemcpyDeviceToDevice);
-
-    cudaFree(Dd);
+    // cudaMemcpy(C, Dd, c_size, cudaMemcpyDeviceToDevice);
+    //
+    // cudaFree(Dd);
     return 0;
 }
 
