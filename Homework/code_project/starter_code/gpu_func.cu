@@ -140,7 +140,7 @@ void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
 
   if (by*BLOCK_SIZE+ty < hA && bx*BLOCK_SIZE+tx < wB){
     int c = bx*BLOCK_SIZE*hA+by*BLOCK_SIZE;
-    printf("%u %u %u %u %u", bx, by, tx, ty, Dsub);
+    printf("%u %u %u %u %u\n", bx, by, tx, ty, Dsub);
     D[c + ty + tx*hA] = alpha*Dsub + beta*C[c + ty + tx*hA];
   }
 
