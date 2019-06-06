@@ -59,7 +59,7 @@ void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
     __shared__ float Bsub[BLOCK_SIZE][BLOCK_SIZE];
 
     if (a+tx*hA >= wA*hA || by*BLOCK_SIZE+ty >= hA ||
-      (b%hB)+ty >= hB || by*BLOCK_SIZE+tx >= wB){
+      (b%hB)+ty >= hB || bx*BLOCK_SIZE+tx >= wB){
       Asub[ty][tx] = 0;
       Bsub[ty][tx] = 0;
     }
