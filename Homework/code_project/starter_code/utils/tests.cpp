@@ -220,6 +220,7 @@ void TestGEMM(int M, int N, int K) {
     // err = myGEMM(dA, dB, dummy, &alpha, &beta, M, N, K);
     // check_launch("myGEMM dummy");
 
+    int err;
     double mystart = MPI_Wtime();
 
     for(int i = 0; i < NUM_ITERS; i++) {
