@@ -192,7 +192,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     dim3 dimBlock(BLOCK_SIZE,BLOCK_SIZE);
     dim3 dimGrid(N/dimBlock.x+1, M/dimBlock.y+1);
 
-    gemm_gpu_fast<<<dimGrid, dimBlock>>>(A, B, C, Dd, M, K, K, N,
+    gemm_gpu<<<dimGrid, dimBlock>>>(A, B, C, Dd, M, K, K, N,
       *alpha, *beta);
 
     cudaMemcpy(C, Dd, c_size, cudaMemcpyDeviceToDevice);
