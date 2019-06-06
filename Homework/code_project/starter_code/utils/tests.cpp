@@ -206,6 +206,10 @@ void TestGEMM(int M, int N, int K) {
 
     /* We are calling your GEMM function here */
     /* We will make one dummy call and check_launch here */
+    std::cout << "dA\n";
+    myPrintMat(dA, M,K,M,K);
+    std::cout << "dB\n";
+    myPrintMat(dB, K, N, K, N);
     int err;
     err = myGEMM(dA, dB, dummy, &alpha, &beta, M, N, K);
     check_launch("myGEMM dummy");
@@ -255,7 +259,7 @@ void BenchmarkGEMM() {
 
     /* First GEMM Problem Size */
     //int M = 800*SCALE, N = 1000*SCALE, K = 784*SCALE;
-    int M = 2, N = 2, K = 1;
+    int M = 2, N = 2, K = 3;
 
     std::cout << std::endl << "Starting GEMM 1: " << "M = " << M << "; N = "
               << N << "; K = " << K << std::endl;
