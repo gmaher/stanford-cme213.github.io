@@ -215,12 +215,12 @@ void sigmoid_gpu(double* __restrict__ X, double* __restrict__ S, int M, int N){
   int id = col*M+row;
 
   if (row < M && col < N){
-    S[id] = 1.0/(1.0+exp(-X[id]));
-    // if (S[id] >= 0){
-    //   S[id] = 1.0/(exp(-X[id])+1);
-    // }else{
-    //   S[id] = exp(X[id])/(exp(X[id])+1);
-    // }
+    //S[id] = 1.0/(1.0+exp(-X[id]));
+    if (S[id] >= 0){
+      S[id] = 1.0/(exp(-X[id])+1);
+    }else{
+      S[id] = exp(X[id])/(exp(X[id])+1);
+    }
   }
 
 }
