@@ -208,8 +208,8 @@ void TestGEMM(int M, int N, int K) {
     /* We will make one dummy call and check_launch here */
     std::cout << "dA\n";
     myPrintMat(dA, M,K,M,K);
-    std::cout << "dB\n";
-    myPrintMat(dB, K, N, K, N);
+    //std::cout << "dB\n";
+    //myPrintMat(dB, K, N, K, N);
     int err;
     err = myGEMM(dA, dB, dummy, &alpha, &beta, M, N, K);
     check_launch("myGEMM dummy");
