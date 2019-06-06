@@ -263,11 +263,11 @@ void BenchmarkGEMM() {
     std::cout << "Completed GEMM 1" << std::endl;
 
     /* Secong GEMM Problem Size */
-    M = 800*SCALE, N = 10*SCALE, K = 1000*SCALE;
-    std::cout << std::endl << "Starting GEMM 2: " << "M = " << M << "; N = "
-              << N << "; K = " << K << std::endl;
-    TestGEMM(M, N, K);
-    std::cout << "Completed GEMM 2" << std::endl;
+    // M = 800*SCALE, N = 10*SCALE, K = 1000*SCALE;
+    // std::cout << std::endl << "Starting GEMM 2: " << "M = " << M << "; N = "
+    //           << N << "; K = " << K << std::endl;
+    // TestGEMM(M, N, K);
+    // std::cout << "Completed GEMM 2" << std::endl;
 
     //test sigmoid
     double x_test[9];
