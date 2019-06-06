@@ -52,7 +52,7 @@ void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
   int b_step  = BLOCK_SIZE;
 
   float Dsub = 0;
-  printf("%u %u %u %u", bx,by,tx,ty);
+  printf("%u %u %u %u\n", bx,by,tx,ty);
   for (int a = a_start, b=b_start; a <= a_end; a+=a_step, b+=b_step){
 
     __shared__ float Asub[BLOCK_SIZE][BLOCK_SIZE];
