@@ -103,6 +103,12 @@ int compareGEMMResults(double* myC, double* refC, int NI, int NJ) {
     arma::mat mysol = arma::mat(myC, NI, NJ, false);
     arma::mat refsol = arma::mat(refC, NI, NJ, false);
 
+    for (int i = 0; i < NI; i++){
+      for (int j = 0; j < NJ; j++){
+        std::cout << i << "," << j << " Cd=" << mysol(i,j) << ", Ch=" << refsol(i,j) << "\n";
+      }
+    }
+
     double reldiff = arma::norm(mysol-refsol,"inf")/arma::norm(refsol,"inf");
 
     if(reldiff > GEMM_TOL) {
