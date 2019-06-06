@@ -255,7 +255,7 @@ void BenchmarkGEMM() {
 
     /* First GEMM Problem Size */
     //int M = 800*SCALE, N = 1000*SCALE, K = 784*SCALE;
-    int M = 3, N = 3, K = 6;
+    int M = 3, N = 3, K = 5;
 
     std::cout << std::endl << "Starting GEMM 1: " << "M = " << M << "; N = "
               << N << "; K = " << K << std::endl;
