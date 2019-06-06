@@ -107,8 +107,8 @@ void gemm_gpu_fast(double* A, double* B, double* C, int hA, int wA,
   int b_start = bx*BLOCK_SIZE*hB;
   int b_step  = BLOCK_SIZE;
 
-  float Dsub = 0;
-  #pragma unroll
+  double Dsub = 0;
+
   for (int a = a_start, b=b_start; a <= a_end; a+=a_step, b+=b_step){
 
     __shared__ float Asub[BLOCK_SIZE][BLOCK_SIZE];
@@ -135,7 +135,6 @@ void gemm_gpu_fast(double* A, double* B, double* C, int hA, int wA,
     __syncthreads();
     //printf("ab %u %u %u %u %u %u, %f, %f\n", bx, by, tx, ty, a, b, Asub[tx][ty], Bsub[tx][ty]);
 
-    #pragma unroll
     for (int i = 0; i < BLOCK_SIZE; i++){
       Dsub += Asub[ty][i]*Bsub[i][tx];
     }
