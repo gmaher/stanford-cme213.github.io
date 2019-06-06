@@ -58,7 +58,7 @@ void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
     __shared__ float Asub[BLOCK_SIZE][BLOCK_SIZE];
     __shared__ float Bsub[BLOCK_SIZE][BLOCK_SIZE];
 
-    if (a+tx*hA < wA*hA || by*BLOCK_SIZE+ty < hA){
+    if (a+tx*hA < wA*hA && by*BLOCK_SIZE+ty < hA){
       Asub[ty][tx] = A[a + ty + hA*tx];
       printf("bx-%u by-%u tx-%u ty-%u a-%u aid-%u\n", bx, by, tx, ty, a, a + ty + hA*tx);
     }
@@ -66,7 +66,7 @@ void gemm_gpu_fast(double* A, double* B, double* C, double* D, int hA, int wA,
       Asub[ty][tx] = 0;
     }
 
-    if ((b%hB)+ty < hB || bx*BLOCK_SIZE+tx < wB){
+    if ((b%hB)+ty < hB && bx*BLOCK_SIZE+tx < wB){
       Bsub[ty][tx] = B[b + ty + hB*tx];
       printf("bx-%u by-%u tx-%u ty-%u b-%u b-id%u\n", bx, by, tx, ty, b, b + ty + hB*tx);
     }else{
