@@ -8,7 +8,7 @@ CUD=nvcc
 
 # Flags
 CFLAGS= -O2 -std=c++11 -I/usr/include
-LDFLAGS= -L/usr/local/cuda-9.0/lib64 -Wl,-rpath -Wl,.. -larmadillo -lcublas -lcudart
+LDFLAGS= -L/usr/local/cuda-10.0/lib64 -Wl,-rpath -Wl,.. -larmadillo -lcublas -lcudart
 CUDFLAGS= -O2 -c -arch=sm_37 -lineinfo -Xcompiler -Wall,-Winline,-Wextra,-Wno-strict-aliasing
 INCFLAGS= -I/usr/local/cuda/include -I/usr/local/cuda/samples/common/inc -I$(INCDIR)
 #-fmad=false
