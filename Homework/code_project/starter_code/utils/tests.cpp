@@ -7,8 +7,8 @@
 using namespace std;
 
 #define SCALE 1         // Factor to SCALE the GEMM problem size by
-#define NUM_ITERS 1    // Number of GEMMs run for timing purposes
-#define GEMM_TOL 1e-12  // Tolerance for GEMM comparison
+#define NUM_ITERS 10    // Number of GEMMs run for timing purposes
+#define GEMM_TOL 1e-6  // Tolerance for GEMM comparison
 
 // check whether the matrix from Seq is the same as from Par.
 // write out mismathces to a file.
@@ -103,11 +103,11 @@ int compareGEMMResults(double* myC, double* refC, int NI, int NJ) {
     arma::mat mysol = arma::mat(myC, NI, NJ, false);
     arma::mat refsol = arma::mat(refC, NI, NJ, false);
 
-    for (int i = 0; i < NI; i++){
-      for (int j = 0; j < NJ; j++){
-        std::cout << i << "," << j << " Cd=" << mysol(i,j) << ", Ch=" << refsol(i,j) << "\n";
-      }
-    }
+    // for (int i = 0; i < NI; i++){
+    //   for (int j = 0; j < NJ; j++){
+    //     std::cout << i << "," << j << " Cd=" << mysol(i,j) << ", Ch=" << refsol(i,j) << "\n";
+    //   }
+    // }
 
     double reldiff = arma::norm(mysol-refsol,"inf")/arma::norm(refsol,"inf");
 
@@ -241,12 +241,12 @@ void TestGEMM(int M, int N, int K) {
 
     int fail = compareGEMMResults(C1, C2, M, N);
 
-    // if(fail == 0) {
-    //     std::cout << "Time for reference GEMM implementation: "
-    //               << refend - refstart << std::endl;
-    //     std::cout << "Time for my GEMM implementation: "
-    //               << myend - mystart << std::endl;
-    // }
+    if(fail == 0) {
+        std::cout << "Time for reference GEMM implementation: "
+                  << refend - refstart << std::endl;
+        std::cout << "Time for my GEMM implementation: "
+                  << myend - mystart << std::endl;
+    }
 
     free(A);
     free(B);
