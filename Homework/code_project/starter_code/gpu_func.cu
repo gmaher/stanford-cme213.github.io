@@ -150,7 +150,7 @@ void gemm_gpu_fast(double* A, double* B, double* C, int hA, int wA,
 }
 
 __global__
-void gemm_gpu(double* A, double* B, double* C, double* D, int hA, int wA,
+void gemm_gpu(double* A, double* B, double* C, int hA, int wA,
     int hB, int wB, double alpha, double beta){
   int bx = blockIdx.x;
   int by = blockIdx.y;
@@ -171,7 +171,7 @@ void gemm_gpu(double* A, double* B, double* C, double* D, int hA, int wA,
     for (int i = 0; i < hB; i++){
       entry += A[a_start+i*a_step]*B[b_start+i];
     }
-    D[row+col*hA] = alpha*entry + beta*C[row+col*hA];
+    C[row+col*hA] = alpha*entry + beta*C[row+col*hA];
   }
 
 }
